@@ -1,0 +1,73 @@
+.auth-shell {
+  min-height: calc(100vh - 76px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(440px, .78fr);
+}
+.auth-art {
+  position: relative; min-height: 720px; overflow: hidden; display: flex;
+  align-items: flex-end; padding: clamp(36px, 6vw, 90px);
+  color: #fff; background: #22515d;
+}
+.auth-art::before {
+  content: ""; position: absolute; width: min(44vw, 560px); aspect-ratio: 1;
+  top: -19%; right: -10%; border: clamp(35px, 6vw, 90px) solid #fdc247; border-radius: 50%;
+}
+.auth-art::after {
+  content: ""; position: absolute; width: min(24vw, 320px); height: 42%;
+  right: 8%; bottom: -9%; background: #bada55; transform: rotate(15deg);
+}
+.auth-art-copy { position: relative; z-index: 1; max-width: 680px; }
+.auth-art .eyebrow { color: #d5efef; }
+.auth-art h1 { margin: 0; font: 800 clamp(52px, 7vw, 104px)/.9 "Manrope", sans-serif; letter-spacing: -5px; }
+.auth-art p:last-child { max-width: 470px; margin: 25px 0 0; color: #d5e2e2; font-size: 17px; }
+.auth-panel {
+  display: flex; align-items: center; justify-content: center;
+  padding: 64px clamp(28px, 6vw, 90px); background: var(--white);
+}
+.auth-form-wrap { width: min(100%, 490px); }
+.auth-form-wrap h1 { margin: 0 0 10px; font: 800 clamp(40px, 5vw, 64px)/.95 "Manrope", sans-serif; letter-spacing: -3px; }
+.auth-lead { margin: 0 0 34px; color: var(--muted); }
+.auth-lead a { color: var(--accent-readable); font-weight: 700; }
+.form-field { margin-bottom: 20px; }
+.form-field label:not(.check-label) { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 700; }
+.form-control {
+  width: 100%; min-height: 52px; padding: 12px 14px; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: 0;
+}
+.form-control:focus { border-color: var(--focus); outline: 2px solid transparent; box-shadow: 0 0 0 2px var(--focus); }
+.form-control[aria-invalid="true"] { border-color: #c33232; }
+.field-error { margin: 6px 0 0; color: #b52828; font-size: 12px; font-weight: 600; }
+html[data-theme="dark"] .field-error { color: #ff8e8e; }
+.password-hint { margin: -11px 0 20px; color: var(--muted); font-size: 12px; }
+.check-label { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; }
+.check-label input { width: 17px; height: 17px; accent-color: var(--accent); }
+.auth-submit { width: 100%; margin-top: 8px; cursor: pointer; }
+.account-page { min-height: 72vh; padding-block: clamp(70px, 10vw, 130px); }
+.account-heading { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 45px; }
+.account-heading h1 { margin: 0; font: 800 clamp(50px, 8vw, 92px)/.9 "Manrope", sans-serif; letter-spacing: -5px; }
+.account-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 20px; }
+.account-card { padding: clamp(28px, 5vw, 54px); background: var(--white); border: 1px solid var(--line); }
+.account-card-accent { color: #fff; background: var(--accent); border-color: var(--accent); }
+.account-card h2 { margin: 0 0 10px; font: 800 27px "Manrope", sans-serif; }
+.account-card p { margin: 0; color: var(--muted); }
+.account-card-accent p { color: #e3e0ff; }
+.account-details { display: grid; grid-template-columns: auto 1fr; gap: 12px 28px; margin: 28px 0 0; }
+.account-details dt { color: var(--muted); font-size: 13px; font-weight: 700; }
+.account-details dd { margin: 0; overflow-wrap: anywhere; }
+.account-initial {
+  width: 72px; aspect-ratio: 1; display: grid; place-items: center; margin-bottom: 35px;
+  color: var(--accent); background: #fff; border-radius: 50%; font: 800 26px "Manrope", sans-serif;
+}
+@media (max-width: 900px) {
+  .auth-shell { grid-template-columns: 1fr; }
+  .auth-art { min-height: 400px; }
+  .auth-panel { padding-block: 60px; }
+}
+@media (max-width: 620px) {
+  .auth-art { min-height: 330px; padding: 34px 24px; }
+  .auth-art h1 { font-size: 49px; letter-spacing: -3px; }
+  .auth-panel { padding: 48px 20px; }
+  .account-heading { align-items: flex-start; flex-direction: column; }
+  .account-heading h1 { letter-spacing: -3px; }
+  .account-grid { grid-template-columns: 1fr; }
+}

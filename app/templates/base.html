@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MadeBy is a community for discovering and sharing creative work.">
+    <title>{% block title %}MadeBy{% endblock %}</title>
+    <link id="site-favicon" rel="icon" type="image/png"
+          href="{{ url_for('static', filename='images/logo/madeby-mark.png') }}"
+          data-light-href="{{ url_for('static', filename='images/logo/madeby-mark.png') }}"
+          data-dark-href="{{ url_for('static', filename='images/logo/madeby-mark-dark.png') }}">
+    <script>
+        (() => {
+            try {
+                const savedTheme = localStorage.getItem("madeby-theme");
+                const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                document.documentElement.dataset.theme = savedTheme === "dark" || savedTheme === "light" ? savedTheme : systemTheme;
+            } catch (_error) {
+                document.documentElement.dataset.theme = "light";
+            }
+            const favicon = document.getElementById("site-favicon");
+            favicon.href = document.documentElement.dataset.theme === "dark" ? favicon.dataset.darkHref : favicon.dataset.lightHref;
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    {% include "partials/nav.html" %}
+    {% include "partials/flash_messages.html" %}
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    {% include "partials/footer.html" %}
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
