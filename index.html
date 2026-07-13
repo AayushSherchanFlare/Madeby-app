@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aayush Sherchan Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+        }
+        header {
+            background: #4CAF50;
+            color: #fff;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5rem;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #333;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            display: inline-block;
+        }
+        nav a:hover {
+            background: #4CAF50;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+        .section h2 {
+            color: #4CAF50;
+            margin-bottom: 1rem;
+        }
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .project-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .project-card h3 {
+            margin-bottom: 0.5rem;
+        }
+        .footer {
+            text-align: center;
+            background: #333;
+            color: #fff;
+            padding: 1rem 0;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Aayush Sherchan</h1>
+        <p>Graphic Designer | UI/UX Designer | Aspiring Data Scientist</p>
+    </header>
+
+    <nav>
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="container">
+        <section id="about" class="section">
+            <h2>About Me</h2>
+            <p>Hi, I'm Aayush Sherchan, a creative graphic designer and UI/UX enthusiast. Currently pursuing my Bachelor's in Data Science, I aim to combine design and data to create impactful solutions. I love crafting user-centered designs and exploring the beauty of data visualization.</p>
+        </section>
+
+        <section id="projects" class="section">
+            <h2>Projects</h2>
+            <div class="projects">
+                <div class="project-card">
+                    <h3>Project 1: Creative Portfolio</h3>
+                    <p>A responsive portfolio showcasing design and coding skills using HTML, CSS, and JavaScript.</p>
+                </div>
+                <div class="project-card">
+                    <h3>Project 2: Data Visualizer</h3>
+                    <p>An interactive tool for visualizing data trends using modern libraries like D3.js.</p>
+                </div>
+                <div class="project-card">
+                    <h3>Project 3: E-commerce UI</h3>
+                    <p>Designed a sleek and user-friendly interface for a mock e-commerce website.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="section">
+            <h2>Contact Me</h2>
+            <p>If you'd like to collaborate or just say hi, feel free to reach out!</p>
+            <p>Email: <a href="mailto:aayush.sherchan@example.com">aayush.sherchan@example.com</a></p>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Aayush Sherchan. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>
