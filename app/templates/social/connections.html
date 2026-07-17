@@ -1,0 +1,35 @@
+{% extends "app_base.html" %}
+{% block title %}{{ heading }} · {{ profile.full_name }} - MadeBy{% endblock %}
+
+{% block app_content %}
+<section class="simple-page">
+    <div class="section-title">
+        <a class="back-link" href="{{ url_for('social.user_profile', username=profile.username) }}">&larr; Back to profile</a>
+        <p class="eyebrow">@{{ profile.username }}</p>
+        <h1>{{ heading }}</h1>
+        <p>{{ profile.full_name }}{% if relationship == "followers" %}'s followers{% else %} follows these people{% endif %}.</p>
+    </div>
+    {% if people %}
+    <div class="people-list">
+        {% for person in people %}
+        <article class="person-card">
+            <a class="social-avatar" href="{{ url_for('social.user_profile', username=person.username) }}">
+                {% if person.profile_image %}<img src="{{ url_for('static', filename='uploads/profiles/' ~ person.profile_image) }}" alt="">
+                {% else %}<span>{{ person.full_name[:1]|upper }}</span>{% endif %}
+            </a>
+            <div>
+                <a href="{{ url_for('social.user_profile', username=person.username) }}">{{ person.full_name }}</a>
+                <span>{{ person.profession or '@' ~ person.username }}</span>
+            </div>
+            {% include "social/_follow_button.html" %}
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-card">
+        <h2>No one here yet.</h2>
+        <p>{% if relationship == "followers" %}This profile has no followers yet.{% else %}This profile is not following anyone yet.{% endif %}</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

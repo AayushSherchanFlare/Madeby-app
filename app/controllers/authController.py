@@ -35,12 +35,12 @@ def _safe_next_url(target):
 
 def register_page():
     if session.get("user_id"):
-        return redirect(url_for("auth.account"))
+        return redirect(url_for("social.feed"))
 
     form = RegisterForm()
     if form.validate_on_submit():
         try:
-            user_id = register_user(
+            register_user(
                 full_name=form.full_name.data,
                 username=form.username.data,
                 email=form.email.data,
@@ -50,18 +50,15 @@ def register_page():
             getattr(form, conflict.field).errors.append(conflict.message)
         else:
             session.clear()
-            session["user_id"] = user_id
-            session["role"] = "user"
-            session.permanent = True
-            flash("Welcome to MadeBy. Your account is ready.", "success")
-            return redirect(url_for("auth.account"))
+            flash("Your account is ready. Log in to continue.", "success")
+            return redirect(url_for("auth.login"))
 
     return render_template("auth/register.html", form=form)
 
 
 def login_page():
     if session.get("user_id"):
-        return redirect(url_for("auth.account"))
+        return redirect(url_for("social.feed"))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -73,7 +70,7 @@ def login_page():
             session.permanent = bool(form.remember.data)
             flash(f"Welcome back, {user['full_name'].split()[0]}.", "success")
             destination = _safe_next_url(request.args.get("next"))
-            return redirect(destination or url_for("auth.account"))
+            return redirect(destination or url_for("social.feed"))
         form.email.errors.append("Email or password is incorrect.")
 
     return render_template("auth/login.html", form=form)

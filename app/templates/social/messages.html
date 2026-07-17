@@ -1,0 +1,14 @@
+{% extends "app_base.html" %}
+{% block title %}Messages - MadeBy{% endblock %}
+
+{% block app_content %}
+<section class="simple-page">
+    <div class="placeholder-feature">
+        <span aria-hidden="true">&#9993;</span>
+        <p class="eyebrow">Coming soon</p>
+        <h1>Messages</h1>
+        <p>Private conversations will live here in a future MadeBy update.</p>
+        <a class="button button-primary" href="{{ url_for('social.feed') }}">Back to feed</a>
+    </div>
+</section>
+{% endblock %}

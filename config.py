@@ -23,13 +23,15 @@ class Config:
     PROFILE_UPLOAD_FOLDER = UPLOAD_ROOT / "profiles"
     COVER_UPLOAD_FOLDER = UPLOAD_ROOT / "covers"
     PROJECT_UPLOAD_FOLDER = UPLOAD_ROOT / "projects"
+    ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
 
-    WTF_CSRF_TIME_LIMIT = timedelta(hours=1)
+    # Flask-WTF passes this value to itsdangerous, which expects seconds.
+    WTF_CSRF_TIME_LIMIT = 60 * 60
     DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"
 
 

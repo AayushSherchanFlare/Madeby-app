@@ -1,0 +1,59 @@
+{% extends "app_base.html" %}
+{% block title %}Notifications - MadeBy{% endblock %}
+
+{% block app_content %}
+<section class="simple-page">
+    <div class="section-title">
+        <p class="eyebrow">Recent activity</p>
+        <h1>Notifications</h1>
+        <p>Likes, comments, and new followers appear here.</p>
+    </div>
+    {% if notifications %}
+    <div class="notification-list">
+        {% for notification in notifications %}
+        <article class="notification-row {{ 'is-unread' if not notification.is_read }}">
+            {% if notification.sender_username %}
+            <a class="social-avatar" href="{{ url_for('social.user_profile', username=notification.sender_username) }}">
+            {% else %}
+            <span class="social-avatar">
+            {% endif %}
+                {% if notification.sender_profile_image %}
+                <img src="{{ url_for('static', filename='uploads/profiles/' ~ notification.sender_profile_image) }}" alt="">
+                {% else %}<span>{{ notification.sender_name[:1]|upper }}</span>{% endif %}
+            {% if notification.sender_username %}</a>{% else %}</span>{% endif %}
+
+            <div class="notification-copy">
+                {% if notification.sender_username %}
+                <a href="{{ url_for('social.user_profile', username=notification.sender_username) }}"><strong>{{ notification.sender_name }}</strong></a>
+                {% else %}<strong>{{ notification.sender_name }}</strong>{% endif %}
+                {% if notification.notification_type == "like" %} liked your post.
+                {% elif notification.notification_type == "comment" %} commented on your post.
+                {% elif notification.notification_type == "follow" %} started following you.
+                {% endif %}
+                <time datetime="{{ notification.created_at.isoformat() }}">{{ notification.created_at.strftime("%b %d, %Y at %I:%M %p") }}</time>
+            </div>
+
+            <div class="notification-action">
+                {% if notification.notification_type in ("like", "comment") and notification.related_project_id %}
+                <a class="notification-view" href="{{ url_for('social.post_detail', project_id=notification.related_project_id) }}">View post</a>
+                {% elif notification.notification_type == "follow" and notification.sender_user_id %}
+                    {% set person = {
+                        "user_id": notification.sender_user_id,
+                        "followed_by_viewer": notification.followed_by_viewer,
+                        "follows_viewer": notification.follows_viewer
+                    } %}
+                    {% include "social/_follow_button.html" %}
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-card">
+        <span aria-hidden="true">&#128276;</span>
+        <h2>No notifications yet.</h2>
+        <p>When someone likes or comments on your post, or follows you, it will appear here.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

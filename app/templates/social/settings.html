@@ -1,0 +1,55 @@
+{% extends "app_base.html" %}
+{% block title %}Settings - MadeBy{% endblock %}
+
+{% block app_content %}
+<section class="settings-page">
+    <div class="section-title"><p class="eyebrow">Your account</p><h1>Settings</h1><p>Manage the profile people see and keep your account secure.</p></div>
+    <div class="settings-grid">
+        <section class="settings-card appearance-card" aria-labelledby="appearance-heading">
+            <div>
+                <h2 id="appearance-heading">Appearance</h2>
+                <p>Choose the look that is most comfortable for you. Your choice is saved on this device.</p>
+            </div>
+            <button class="theme-toggle settings-theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode">
+                <span class="settings-theme-copy">
+                    <strong>Light and dark mode</strong>
+                    <span class="theme-label">Switch to dark mode</span>
+                </span>
+                <span class="settings-theme-icon" aria-hidden="true">
+                    <span class="theme-icon theme-icon-moon">&#9790;</span>
+                    <span class="theme-icon theme-icon-sun">&#9728;</span>
+                </span>
+            </button>
+        </section>
+        <form class="settings-card" action="{{ url_for('social.save_profile') }}" method="post" enctype="multipart/form-data" novalidate>
+            {{ profile_form.hidden_tag() }}
+            <h2>Profile details</h2>
+            <div class="form-field">{{ profile_form.full_name.label }}{{ profile_form.full_name(class="form-control") }}{% for error in profile_form.full_name.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            <div class="form-field">{{ profile_form.profession.label }}{{ profile_form.profession(class="form-control", placeholder="Designer, photographer...") }}{% for error in profile_form.profession.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            <div class="form-field">{{ profile_form.biography.label }}{{ profile_form.biography(class="form-control", rows="4") }}{% for error in profile_form.biography.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            <div class="form-field">{{ profile_form.website_url.label }}{{ profile_form.website_url(class="form-control", placeholder="https://") }}{% for error in profile_form.website_url.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            <div class="form-field">{{ profile_form.profile_image.label }}{{ profile_form.profile_image(class="form-control", accept=".jpg,.jpeg,.png,.webp") }}{% for error in profile_form.profile_image.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            {{ profile_form.submit(class="button button-primary") }}
+        </form>
+        <form class="settings-card" action="{{ url_for('social.save_password') }}" method="post" novalidate>
+            {{ password_form.hidden_tag() }}
+            <h2>Change password</h2>
+            <p>Use at least eight characters and choose something you do not use elsewhere.</p>
+            <div class="form-field">{{ password_form.current_password.label }}{{ password_form.current_password(class="form-control", autocomplete="current-password") }}{% for error in password_form.current_password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            <div class="form-field">{{ password_form.new_password.label }}{{ password_form.new_password(class="form-control", autocomplete="new-password") }}{% for error in password_form.new_password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            <div class="form-field">{{ password_form.confirm_password.label }}{{ password_form.confirm_password(class="form-control", autocomplete="new-password") }}{% for error in password_form.confirm_password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</div>
+            {{ password_form.submit(class="button button-primary") }}
+        </form>
+        <section class="settings-card logout-card" aria-labelledby="logout-heading">
+            <div>
+                <h2 id="logout-heading">Log out</h2>
+                <p>End your current MadeBy session on this device.</p>
+            </div>
+            <form action="{{ url_for('auth.logout') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button settings-logout-button" type="submit">Log out</button>
+            </form>
+        </section>
+    </div>
+</section>
+{% endblock %}

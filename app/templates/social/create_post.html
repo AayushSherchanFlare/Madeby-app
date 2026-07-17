@@ -1,0 +1,30 @@
+{% extends "app_base.html" %}
+{% block title %}Create a post - MadeBy{% endblock %}
+
+{% block app_content %}
+<section class="composer-page">
+    <a class="back-link" href="{{ url_for('social.feed') }}">&larr; Back to feed</a>
+    <div class="composer-card">
+        <p class="eyebrow">Share your work</p>
+        <h1>Create a post</h1>
+        <p class="composer-intro">Write something, add a photo, or do both.</p>
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="composer-author">
+                <span class="social-avatar"><span>{{ current_user.full_name[:1]|upper }}</span></span>
+                <div><strong>{{ current_user.full_name }}</strong><span>Posting publicly</span></div>
+            </div>
+            {{ form.content(class="composer-textarea", placeholder="What would you like to share?", rows="7") }}
+            {% for error in form.content.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            <div class="image-preview" id="image-preview" hidden><img alt="Selected photo preview"></div>
+            <div class="composer-options">
+                <label class="upload-choice" for="{{ form.image.id }}">&#9635; Choose photo</label>
+                {{ form.image(class="sr-only", accept=".jpg,.jpeg,.png,.webp", data_preview_target="image-preview") }}
+                {{ form.category_id(class="category-select") }}
+            </div>
+            {% for error in form.image.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            {{ form.submit(class="button button-primary composer-submit") }}
+        </form>
+    </div>
+</section>
+{% endblock %}

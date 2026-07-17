@@ -19,7 +19,11 @@ def find_by_id(user_id):
     with database_cursor() as cursor:
         cursor.execute(
             """
-            SELECT user_id, full_name, username, email, role, account_status
+            SELECT user_id, full_name, username, email, role, account_status,
+                   profession, biography, website_url, profile_image, cover_image,
+                   (SELECT COUNT(*) FROM notifications n
+                    WHERE n.recipient_user_id = users.user_id
+                      AND n.is_read = FALSE) AS unread_notification_count
             FROM users
             WHERE user_id = %s
             LIMIT 1

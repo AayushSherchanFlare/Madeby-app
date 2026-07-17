@@ -43,10 +43,10 @@ CREATE TABLE categories (
 CREATE TABLE projects (
     project_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,
-    category_id SMALLINT UNSIGNED NOT NULL,
-    title VARCHAR(160) NOT NULL,
-    description TEXT NOT NULL,
-    cover_image VARCHAR(255) NOT NULL,
+    category_id SMALLINT UNSIGNED NULL,
+    title VARCHAR(160) NULL,
+    description TEXT NULL,
+    cover_image VARCHAR(255) NULL,
     tools_used VARCHAR(500) NULL,
     status ENUM('draft', 'published', 'hidden') NOT NULL DEFAULT 'published',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -59,9 +59,16 @@ CREATE TABLE projects (
     CONSTRAINT fk_projects_user FOREIGN KEY (user_id)
         REFERENCES users (user_id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_projects_category FOREIGN KEY (category_id)
-        REFERENCES categories (category_id) ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT chk_projects_title_length CHECK (CHAR_LENGTH(TRIM(title)) BETWEEN 1 AND 160),
-    CONSTRAINT chk_projects_description_length CHECK (CHAR_LENGTH(TRIM(description)) BETWEEN 1 AND 10000)
+        REFERENCES categories (category_id) ON UPDATE CASCADE ON DELETE SET NULL,
+    CONSTRAINT chk_projects_title_length CHECK (
+        title IS NULL OR CHAR_LENGTH(TRIM(title)) BETWEEN 1 AND 160
+    ),
+    CONSTRAINT chk_projects_description_length CHECK (
+        description IS NULL OR CHAR_LENGTH(TRIM(description)) BETWEEN 1 AND 10000
+    ),
+    CONSTRAINT chk_projects_has_content CHECK (
+        title IS NOT NULL OR description IS NOT NULL OR cover_image IS NOT NULL
+    )
 ) ENGINE=InnoDB;
 
 CREATE TABLE project_images (
@@ -106,6 +113,20 @@ CREATE TABLE likes (
     CONSTRAINT fk_likes_user FOREIGN KEY (user_id)
         REFERENCES users (user_id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_likes_project FOREIGN KEY (project_id)
+        REFERENCES projects (project_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE saved_posts (
+    saved_post_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    project_id BIGINT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (saved_post_id),
+    UNIQUE KEY uq_saved_posts_user_project (user_id, project_id),
+    KEY idx_saved_posts_project (project_id),
+    CONSTRAINT fk_saved_posts_user FOREIGN KEY (user_id)
+        REFERENCES users (user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_saved_posts_project FOREIGN KEY (project_id)
         REFERENCES projects (project_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
 

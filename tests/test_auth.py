@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from werkzeug.security import generate_password_hash
 
@@ -9,6 +11,41 @@ def test_registration_page_renders(client):
     assert b"Join MadeBy" in response.data
     assert b'name="username"' in response.data
     assert b'class="brand"' in response.data
+
+
+def test_registration_accepts_valid_csrf_token(monkeypatch):
+    from app import create_app
+    from config import TestConfig
+
+    class CsrfTestConfig(TestConfig):
+        WTF_CSRF_ENABLED = True
+
+    monkeypatch.setattr(
+        "app.controllers.authController.register_user",
+        lambda **_details: 42,
+    )
+    client = create_app(CsrfTestConfig).test_client()
+    page = client.get("/register")
+    token_match = re.search(
+        rb'name="csrf_token" type="hidden" value="([^"]+)"',
+        page.data,
+    )
+
+    assert token_match is not None
+    response = client.post(
+        "/register",
+        data={
+            "csrf_token": token_match.group(1).decode(),
+            "full_name": "Maya Shrestha",
+            "username": "maya",
+            "email": "maya@example.com",
+            "password": "correct-horse",
+            "confirm_password": "correct-horse",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/login")
 
 
 def test_registration_validates_input_before_database_use(client):
@@ -29,7 +66,7 @@ def test_registration_validates_input_before_database_use(client):
     assert b"Passwords must match." in response.data
 
 
-def test_successful_registration_creates_session(client, monkeypatch):
+def test_successful_registration_requires_login(client, monkeypatch):
     submitted = {}
 
     def fake_register(**details):
@@ -53,10 +90,12 @@ def test_successful_registration_creates_session(client, monkeypatch):
     )
 
     assert response.status_code == 302
-    assert response.headers["Location"].endswith("/account")
+    assert response.headers["Location"].endswith("/login")
     with client.session_transaction() as session:
-        assert session["user_id"] == 42
-        assert session["role"] == "user"
+        assert "user_id" not in session
+        assert "role" not in session
+    login_page = client.get("/login")
+    assert b"Your account is ready. Log in to continue." in login_page.data
     assert submitted["username"] == "maya_studio"
     assert submitted["email"] == "maya@example.com"
 
@@ -92,7 +131,7 @@ def test_login_starts_session(client, monkeypatch):
     )
 
     assert response.status_code == 302
-    assert response.headers["Location"].endswith("/account")
+    assert response.headers["Location"].endswith("/feed")
     with client.session_transaction() as session:
         assert session["user_id"] == 7
 
@@ -113,7 +152,7 @@ def test_login_does_not_redirect_to_another_host(client, monkeypatch):
     )
 
     assert response.status_code == 302
-    assert response.headers["Location"].endswith("/account")
+    assert response.headers["Location"].endswith("/feed")
 
 
 def test_login_accepts_safe_local_redirect(client, monkeypatch):
@@ -151,7 +190,7 @@ def test_login_rejects_backslash_redirect(client, monkeypatch):
     )
 
     assert response.status_code == 302
-    assert response.headers["Location"].endswith("/account")
+    assert response.headers["Location"].endswith("/feed")
 
 
 def test_account_requires_login(client):

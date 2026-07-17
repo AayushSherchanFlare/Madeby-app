@@ -1,0 +1,24 @@
+{% extends "app_base.html" %}
+{% block title %}Friends - MadeBy{% endblock %}
+
+{% block app_content %}
+<section class="simple-page">
+    <div class="section-title"><p class="eyebrow">Your network</p><h1>Friends</h1><p>People you follow who also follow you back.</p></div>
+    {% if friends %}
+    <div class="people-list">
+        {% for friend in friends %}
+        <article class="person-card">
+            <a class="social-avatar" href="{{ url_for('social.user_profile', username=friend.username) }}">
+                {% if friend.profile_image %}<img src="{{ url_for('static', filename='uploads/profiles/' ~ friend.profile_image) }}" alt="">
+                {% else %}<span>{{ friend.full_name[:1]|upper }}</span>{% endif %}
+            </a>
+            <div><a href="{{ url_for('social.user_profile', username=friend.username) }}">{{ friend.full_name }}</a><span>{{ friend.profession or '@' ~ friend.username }}</span></div>
+            <a class="message-placeholder" href="{{ url_for('social.messages') }}">Message <small>Soon</small></a>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-card"><h2>No mutual connections yet.</h2><p>Follow people from your feed. When they follow you back, they will appear here.</p></div>
+    {% endif %}
+</section>
+{% endblock %}

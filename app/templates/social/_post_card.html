@@ -1,0 +1,83 @@
+<article class="feed-card" data-project-id="{{ post.project_id }}">
+    {% set post_username = post.username if post.username is defined else profile.username %}
+    {% set post_full_name = post.full_name if post.full_name is defined else profile.full_name %}
+    {% set return_path = request.full_path if request.query_string else request.path %}
+    <header class="post-author">
+        <a class="social-avatar" href="{{ url_for('social.user_profile', username=post_username) }}">
+            {% if post.profile_image is defined and post.profile_image %}
+            <img src="{{ url_for('static', filename='uploads/profiles/' ~ post.profile_image) }}" alt="">
+            {% else %}<span>{{ post_full_name[:1]|upper }}</span>{% endif %}
+        </a>
+        <div>
+            <a class="author-name" href="{{ url_for('social.user_profile', username=post_username) }}">{{ post_full_name }}</a>
+            <span>@{{ post_username }} &middot; {{ post.created_at.strftime('%b %d, %Y') }}</span>
+        </div>
+        <div class="post-menu-wrap">
+            <button class="post-menu" type="button" aria-expanded="false" aria-controls="post-menu-{{ post.project_id }}" aria-label="Post options">&bull;&bull;&bull;</button>
+            <div class="post-menu-panel" id="post-menu-{{ post.project_id }}">
+                {% if post.user_id == current_user.user_id %}
+                <a href="{{ url_for('social.edit_post', project_id=post.project_id) }}">Edit post</a>
+                <form action="{{ url_for('social.post_visibility', project_id=post.project_id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="next" value="{{ return_path }}">
+                    {% if post.status|default('published') == 'hidden' %}
+                    <input type="hidden" name="status" value="published">
+                    <button type="submit">Make public</button>
+                    {% else %}
+                    <input type="hidden" name="status" value="hidden">
+                    <button type="submit">Hide from public</button>
+                    {% endif %}
+                </form>
+                <form action="{{ url_for('social.delete_post', project_id=post.project_id) }}" method="post" data-confirm="Delete this post permanently?">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="danger-action" type="submit">Delete post</button>
+                </form>
+                {% else %}
+                <button class="copy-post-link" type="button" data-copy-url="{{ url_for('social.post_detail', project_id=post.project_id, _external=True) }}">Copy post link</button>
+                <form action="{{ url_for('social.save_post', project_id=post.project_id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="next" value="{{ return_path }}">
+                    <button type="submit">{{ "Unsave post" if post.saved_by_user else "Save post" }}</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+    {% if post.status|default('published') == 'hidden' %}<div class="hidden-post-badge">Only visible to you</div>{% endif %}
+    {% if post.title %}<h2 class="post-title">{{ post.title }}</h2>{% endif %}
+    {% if post.description %}<p class="post-copy">{{ post.description }}</p>{% endif %}
+    {% if post.cover_image %}
+    <img class="post-image" src="{{ url_for('static', filename='uploads/projects/' ~ post.cover_image) }}" alt="Photo shared in this post">
+    {% endif %}
+    {% if post.category_name %}<a class="post-category" href="{{ url_for('social.feed') }}"># {{ post.category_name }}</a>{% endif %}
+    <div class="post-stats">
+        <span data-like-count>{{ post.like_count }} {{ "like" if post.like_count == 1 else "likes" }}</span>
+        <span data-comment-count>{{ post.comment_count }} {{ "comment" if post.comment_count == 1 else "comments" }}</span>
+    </div>
+    {% if interactive|default(false) %}
+    <div class="post-actions">
+        <form class="like-form" action="{{ url_for('social.like', project_id=post.project_id) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="next" value="{{ return_path }}">
+            <button class="{{ 'is-liked' if post.liked_by_user }}" type="submit">&#9825; {{ "Liked" if post.liked_by_user else "Like" }}</button>
+        </form>
+        <button class="comment-toggle" type="button" aria-expanded="false" aria-controls="comments-{{ post.project_id }}">&#9633; Comment</button>
+    </div>
+    <div class="post-comments" id="comments-{{ post.project_id }}">
+        {% for comment in post.comments %}
+        <div class="comment-row">
+            <span class="comment-avatar" aria-hidden="true">{{ comment.full_name[:1]|upper }}</span>
+            <p><strong>{{ comment.full_name }}</strong> {{ comment.comment_text }}</p>
+        </div>
+        {% endfor %}
+        <form class="comment-form" action="{{ url_for('social.comment', project_id=post.project_id) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="next" value="{{ return_path }}">
+            <label class="sr-only" for="comment-{{ post.project_id }}">Comment</label>
+            <input id="comment-{{ post.project_id }}" name="comment_text" maxlength="1000" placeholder="Write a comment..." required>
+            <button type="submit">Send</button>
+        </form>
+        <p class="post-action-status" aria-live="polite"></p>
+    </div>
+    {% endif %}
+</article>

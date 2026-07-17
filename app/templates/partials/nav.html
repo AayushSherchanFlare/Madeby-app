@@ -6,13 +6,13 @@
             <a href="{{ url_for('main.landing') }}#projects">Explore</a>
             <a href="{{ url_for('main.landing') }}#creator-heading">Creators</a>
             <button class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode" title="Switch colour theme">
-                <span class="theme-icon theme-icon-moon" aria-hidden="true">☾</span>
-                <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+                <span class="theme-icon theme-icon-moon" aria-hidden="true">&#9790;</span>
+                <span class="theme-icon theme-icon-sun" aria-hidden="true">&#9728;</span>
                 <span class="sr-only theme-label">Switch to dark mode</span>
             </button>
             <span class="nav-divider" aria-hidden="true"></span>
             {% if session.get("user_id") %}
-            <a class="nav-login" href="{{ url_for('auth.account') }}">My account</a>
+            <a class="nav-login" href="{{ url_for('social.feed') }}">My feed</a>
             <form class="nav-logout" action="{{ url_for('auth.logout') }}" method="post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button class="button button-small button-primary" type="submit">Log out</button>

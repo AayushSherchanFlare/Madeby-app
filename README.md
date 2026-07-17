@@ -4,7 +4,7 @@ MadeBy is an individual university web application project for creative professi
 
 **Created by Aayush Thakali Sherchan.**
 
-This repository currently contains **Phase 2: Authentication**. Profiles, projects, interactions, notifications, settings, and moderation remain reserved for later phases.
+This repository currently contains **Phase 3: Social feed and profiles**. It keeps the original public landing page while giving signed-in members a separate social workspace.
 
 ## Current features
 
@@ -25,7 +25,17 @@ This repository currently contains **Phase 2: Authentication**. Profiles, projec
 - Login, logout, persistent-session option, and protected account page
 - Safe post-login redirects and account-status enforcement
 - CSRF-protected authentication forms and logout action
-- Automated authentication and route tests
+- Signed-in feed combining the member's work, followed creators, and community posts
+- Text-or-photo post composer with category selection and image-signature validation
+- Owner-only post editing, deletion, and private profile visibility controls
+- Likes, comments, saved posts, shareable post links, persistent follow suggestions, and category feed filters
+- Notification inbox and unread count for likes, comments, and new followers
+- Follow, follow-back, and unfollow states across suggestions and member lists
+- Public member profiles with clickable follower and following lists
+- Mutual-follow friends list with a messaging placeholder
+- Profile editing and secure password changes
+- Responsive desktop/mobile dashboard derived from the supplied UI reference
+- Automated authentication, social, database-helper, route, and schema tests
 
 ## Technology stack
 
@@ -97,6 +107,8 @@ triggers with an administrative account:
 ```sql
 SOURCE E:/My App/database/migrations/001_add_relationship_triggers.sql;
 SOURCE E:/My App/database/migrations/002_streamline_schema.sql;
+SOURCE E:/My App/database/migrations/003_social_feed_posts.sql;
+SOURCE E:/My App/database/migrations/004_add_saved_posts.sql;
 ```
 
 The application database user should not be granted the elevated global
@@ -132,7 +144,7 @@ Visit `http://127.0.0.1:5000/`. The landing page does not query MySQL, so it can
 - [ ] `/` returns the responsive MadeBy landing page.
 - [ ] The mobile menu opens at a narrow browser width and can be used by keyboard.
 - [ ] A missing URL such as `/does-not-exist` displays the custom 404 page.
-- [ ] `SHOW TABLES;` in MySQL lists all ten version-one tables.
+- [ ] `SHOW TABLES;` in MySQL lists all eleven version-one tables.
 - [ ] `SELECT * FROM categories;` returns the nine seeded creative categories.
 - [ ] A new account can register, log out, and log back in.
 - [ ] `python -m pytest` completes successfully.
@@ -169,12 +181,12 @@ Run the automated suite with:
 python -m pytest
 ```
 
-The authentication tests use isolated fakes and do not require a running MySQL server.
+The automated tests use isolated fakes and do not require a running MySQL server.
 
 ## Known limitations
 
-Featured landing-page content is still presentation data. Authentication is active, while project uploads, editable profiles, social features, notifications, settings, and the admin panel are not yet implemented.
+Featured landing-page content is still presentation data. Messaging is currently a placeholder. Account recovery, email verification, moderation, and the admin panel are not yet implemented.
 
 ## Planned improvements
 
-The next phases add editable profiles, project management, feed and explore, social interactions, notifications, settings, and administration. Longer-term possibilities include messaging, cloud storage, advanced analytics, OAuth, and email verification; these are outside version one.
+The next phase can add messaging, moderation, and administration. Longer-term possibilities include cloud storage, advanced analytics, OAuth, and email verification.

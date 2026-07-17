@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Log in to MadeBy{% endblock %}
-{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css', v=asset_version('css/auth.css')) }}">{% endblock %}
 
 {% block content %}
 <div class="auth-shell">

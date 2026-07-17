@@ -1,0 +1,43 @@
+{% extends "app_base.html" %}
+{% block title %}{{ profile.full_name }} - MadeBy{% endblock %}
+
+{% block app_content %}
+<section class="profile-page">
+    <div class="profile-hero">
+        <div class="profile-cover"></div>
+        <div class="profile-summary">
+            <div class="profile-avatar">
+                {% if profile.profile_image %}<img src="{{ url_for('static', filename='uploads/profiles/' ~ profile.profile_image) }}" alt="{{ profile.full_name }}">
+                {% else %}{{ profile.full_name[:1]|upper }}{% endif %}
+            </div>
+            <div class="profile-identity">
+                <h1>{{ profile.full_name }}</h1>
+                <p>@{{ profile.username }}{% if profile.profession %} &middot; {{ profile.profession }}{% endif %}</p>
+            </div>
+            {% if profile.user_id == current_user.user_id %}
+            <a class="button button-secondary button-small" href="{{ url_for('social.settings') }}">Edit profile</a>
+            {% else %}
+                {% set person = profile %}
+                {% include "social/_follow_button.html" %}
+            {% endif %}
+        </div>
+        {% if profile.biography %}<p class="profile-bio">{{ profile.biography }}</p>{% endif %}
+        <div class="profile-counts">
+            <span><strong>{{ profile.post_count }}</strong> posts</span>
+            <a href="{{ url_for('social.followers', username=profile.username) }}"><strong>{{ profile.follower_count }}</strong> followers</a>
+            <a href="{{ url_for('social.following', username=profile.username) }}"><strong>{{ profile.following_count }}</strong> following</a>
+        </div>
+    </div>
+    <div class="profile-posts">
+        <div class="section-title"><p class="eyebrow">Shared work</p><h2>Posts</h2></div>
+        {% if posts %}
+            {% for post in posts %}
+                {% set interactive = false %}
+                {% include "social/_post_card.html" %}
+            {% endfor %}
+        {% else %}
+        <div class="empty-card"><h2>No posts yet.</h2><p>This profile's next idea is still in progress.</p></div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}MadeBy — Share what you create{% endblock %}
-{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css', v=asset_version('css/landing.css')) }}">{% endblock %}
 
 {% block content %}
 <section class="hero container" aria-labelledby="hero-title">
@@ -10,7 +10,7 @@
         <h1 id="hero-title">Make it.<br><span>Share it.</span><br>Be known for it.</h1>
         <p class="hero-intro">MadeBy brings portfolios and creative communities together. Publish your best work, meet collaborators, and find your next spark.</p>
         <div class="hero-actions">
-            <a class="button button-primary" href="{{ url_for('auth.account') if session.get('user_id') else url_for('auth.register') }}">Start creating</a>
+            <a class="button button-primary" href="{{ url_for('social.feed') if session.get('user_id') else url_for('auth.register') }}">Start creating</a>
             <a class="button button-secondary" href="#projects">Explore work</a>
         </div>
         <div class="hero-proof" aria-label="MadeBy community highlights">
@@ -69,7 +69,7 @@
         <p class="eyebrow">Your work belongs here</p>
         <h2 id="join-heading">Ready to show<br>what you’re made of?</h2>
         <p>Create your MadeBy account and start shaping your creative presence.</p>
-        <a class="button button-light" href="{{ url_for('auth.account') if session.get('user_id') else url_for('auth.register') }}">
+        <a class="button button-light" href="{{ url_for('social.feed') if session.get('user_id') else url_for('auth.register') }}">
             {{ "Go to your account" if session.get("user_id") else "Join MadeBy" }}
         </a>
     </div>

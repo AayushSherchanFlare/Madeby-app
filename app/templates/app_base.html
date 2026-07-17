@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css', v=asset_version('css/dashboard.css')) }}">
+{% endblock %}
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block body %}
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar" aria-label="MadeBy navigation">
+        <a class="brand dashboard-brand" href="{{ url_for('social.feed') }}" aria-label="MadeBy feed"><span class="sr-only">MadeBy</span></a>
+        <nav class="dashboard-nav">
+            <a class="{{ 'is-active' if request.endpoint == 'social.feed' }}" href="{{ url_for('social.feed') }}"><span aria-hidden="true">&#8962;</span> News feed</a>
+            <a class="{{ 'is-active' if request.endpoint == 'social.messages' }}" href="{{ url_for('social.messages') }}"><span aria-hidden="true">&#9993;</span> Messages <small>Soon</small></a>
+            <a class="{{ 'is-active' if request.endpoint == 'social.notifications' }}" href="{{ url_for('social.notifications') }}">
+                <span aria-hidden="true">&#128276;</span> Notifications
+                {% if current_user.unread_notification_count|default(0) %}<small class="nav-notification-badge">{{ current_user.unread_notification_count }}</small>{% endif %}
+            </a>
+            <a class="{{ 'is-active' if request.endpoint in ('social.profile', 'social.user_profile', 'social.followers', 'social.following') }}" href="{{ url_for('social.profile') }}"><span aria-hidden="true">&#9679;</span> Profile</a>
+            <a class="{{ 'is-active' if request.endpoint == 'social.friends' }}" href="{{ url_for('social.friends') }}"><span aria-hidden="true">&#9823;</span> Friends</a>
+            <a class="{{ 'is-active' if request.endpoint == 'social.settings' }}" href="{{ url_for('social.settings') }}"><span aria-hidden="true">&#9881;</span> Settings</a>
+        </nav>
+        <a class="sidebar-create" href="{{ url_for('social.create_post') }}"><span aria-hidden="true">+</span> Add post</a>
+        <div class="sidebar-account">
+            <div class="mini-avatar" aria-hidden="true">
+                {% if current_user.profile_image %}
+                <img src="{{ url_for('static', filename='uploads/profiles/' ~ current_user.profile_image) }}" alt="">
+                {% else %}{{ current_user.full_name[:1]|upper }}{% endif %}
+            </div>
+            <div><strong>{{ current_user.full_name }}</strong><span>@{{ current_user.username }}</span></div>
+            <form action="{{ url_for('auth.logout') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" aria-label="Log out" title="Log out">&#8599;</button>
+            </form>
+        </div>
+    </aside>
+
+    <header class="dashboard-mobile-header">
+        <a class="brand" href="{{ url_for('social.feed') }}" aria-label="MadeBy feed"><span class="sr-only">MadeBy</span></a>
+        <div class="dashboard-mobile-actions">
+            <a class="mobile-add" href="{{ url_for('social.create_post') }}">+ Post</a>
+            <button class="dashboard-menu-button" type="button" aria-expanded="false" aria-controls="dashboard-mobile-menu">
+                <span class="sr-only">Open navigation menu</span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </button>
+        </div>
+    </header>
+
+    <nav class="dashboard-mobile-menu" id="dashboard-mobile-menu" aria-label="Mobile menu">
+        <a class="{{ 'is-active' if request.endpoint == 'social.feed' }}" href="{{ url_for('social.feed') }}">News feed</a>
+        <a class="{{ 'is-active' if request.endpoint == 'social.messages' }}" href="{{ url_for('social.messages') }}">Messages <small>Coming soon</small></a>
+        <a class="{{ 'is-active' if request.endpoint == 'social.notifications' }}" href="{{ url_for('social.notifications') }}">
+            Notifications
+            {% if current_user.unread_notification_count|default(0) %}<small class="nav-notification-badge">{{ current_user.unread_notification_count }} new</small>{% endif %}
+        </a>
+        <a class="{{ 'is-active' if request.endpoint in ('social.profile', 'social.user_profile', 'social.followers', 'social.following') }}" href="{{ url_for('social.profile') }}">Profile</a>
+        <a class="{{ 'is-active' if request.endpoint == 'social.friends' }}" href="{{ url_for('social.friends') }}">Friends</a>
+        <a class="{{ 'is-active' if request.endpoint == 'social.settings' }}" href="{{ url_for('social.settings') }}">Settings</a>
+    </nav>
+
+    {% include "partials/flash_messages.html" %}
+    <main id="main-content" class="dashboard-main">
+        {% block app_content %}{% endblock %}
+    </main>
+
+    <nav class="dashboard-mobile-nav" aria-label="Mobile navigation">
+        <a class="{{ 'is-active' if request.endpoint == 'social.feed' }}" href="{{ url_for('social.feed') }}"><span aria-hidden="true">&#8962;</span><small>Feed</small></a>
+        <a class="{{ 'is-active' if request.endpoint == 'social.friends' }}" href="{{ url_for('social.friends') }}"><span aria-hidden="true">&#9823;</span><small>Friends</small></a>
+        <a class="mobile-nav-create {{ 'is-active' if request.endpoint == 'social.create_post' }}" href="{{ url_for('social.create_post') }}" aria-label="Add post"><span aria-hidden="true">+</span></a>
+        <a class="{{ 'is-active' if request.endpoint == 'social.messages' }}" href="{{ url_for('social.messages') }}"><span aria-hidden="true">&#9993;</span><small>Messages</small></a>
+        <a class="{{ 'is-active' if request.endpoint in ('social.profile', 'social.user_profile', 'social.followers', 'social.following') }}" href="{{ url_for('social.profile') }}"><span aria-hidden="true">&#9679;</span><small>Profile</small></a>
+    </nav>
+</div>
+<script src="{{ url_for('static', filename='js/main.js', v=asset_version('js/main.js')) }}" defer></script>
+<script src="{{ url_for('static', filename='js/social.js', v=asset_version('js/social.js')) }}" defer></script>
+{% endblock %}

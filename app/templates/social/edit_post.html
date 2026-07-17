@@ -1,0 +1,32 @@
+{% extends "app_base.html" %}
+{% block title %}Edit post - MadeBy{% endblock %}
+
+{% block app_content %}
+<section class="composer-page">
+    <a class="back-link" href="{{ url_for('social.post_detail', project_id=post.project_id) }}">&larr; Back to post</a>
+    <div class="composer-card">
+        <p class="eyebrow">Your post</p>
+        <h1>Edit post</h1>
+        <p class="composer-intro">Update the text, category, or replace the current photo.</p>
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {{ form.hidden_tag() }}
+            {{ form.content(class="composer-textarea", placeholder="What would you like to share?", rows="7") }}
+            {% for error in form.content.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            {% if post.cover_image %}
+            <div class="existing-post-image">
+                <span>Current photo</span>
+                <img src="{{ url_for('static', filename='uploads/projects/' ~ post.cover_image) }}" alt="Current post photo">
+            </div>
+            {% endif %}
+            <div class="image-preview" id="image-preview" hidden><img alt="New photo preview"></div>
+            <div class="composer-options">
+                <label class="upload-choice" for="{{ form.image.id }}">&#9635; Replace photo</label>
+                {{ form.image(class="sr-only", accept=".jpg,.jpeg,.png,.webp", data_preview_target="image-preview") }}
+                {{ form.category_id(class="category-select") }}
+            </div>
+            {% for error in form.image.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            {{ form.submit(class="button button-primary composer-submit", value="Save changes") }}
+        </form>
+    </div>
+</section>
+{% endblock %}

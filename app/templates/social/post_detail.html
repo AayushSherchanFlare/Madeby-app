@@ -1,0 +1,10 @@
+{% extends "app_base.html" %}
+{% block title %}Post by {{ post.full_name }} - MadeBy{% endblock %}
+
+{% block app_content %}
+<section class="composer-page post-detail-page">
+    <a class="back-link" href="{{ url_for('social.feed') }}">&larr; Back to feed</a>
+    {% set interactive = true %}
+    {% include "social/_post_card.html" %}
+</section>
+{% endblock %}

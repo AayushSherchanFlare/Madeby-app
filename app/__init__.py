@@ -2,7 +2,7 @@ import logging
 from datetime import date
 from pathlib import Path
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_wtf.csrf import CSRFError, CSRFProtect
 
 from config import Config
@@ -32,11 +32,22 @@ def create_app(config_class=Config):
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("X-Frame-Options", "DENY")
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        if request.endpoint and request.endpoint.startswith("social."):
+            response.headers["Cache-Control"] = "no-store"
         return response
 
     @app.context_processor
     def template_globals():
-        return {"current_year": date.today().year}
+        def asset_version(filename):
+            try:
+                return (Path(app.static_folder) / filename).stat().st_mtime_ns
+            except OSError:
+                return 1
+
+        return {
+            "asset_version": asset_version,
+            "current_year": date.today().year,
+        }
 
     return app
 
@@ -53,9 +64,11 @@ def _create_upload_directories(app):
 def _register_blueprints(app):
     from app.routes.authRoutes import auth_bp
     from app.routes.mainRoutes import main_bp
+    from app.routes.socialRoutes import social_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(social_bp)
 
 
 def _register_error_handlers(app):
