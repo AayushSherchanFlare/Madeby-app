@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Verify your email - MadeBy{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css', v=asset_version('css/auth.css')) }}">{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <section class="auth-art" aria-labelledby="verify-art-title">
+        <div class="auth-art-copy">
+            <p class="eyebrow">One final step</p>
+            <h1 id="verify-art-title">Check your<br>inbox.</h1>
+            <p>Your work deserves a secure home. Confirm your email to finish joining MadeBy.</p>
+        </div>
+    </section>
+    <section class="auth-panel" aria-labelledby="verify-title">
+        <div class="auth-form-wrap">
+            <p class="eyebrow">Email verification</p>
+            <h1 id="verify-title">Enter your code</h1>
+            <p class="auth-lead">We sent a six-digit code to <strong>{{ masked_email }}</strong>. It expires in 10 minutes.</p>
+            <form method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="form-field">
+                    {{ form.code.label }}
+                    {{ form.code(
+                        class="form-control verification-code",
+                        autocomplete="one-time-code",
+                        inputmode="numeric",
+                        maxlength="6",
+                        autofocus=true,
+                        aria_invalid="true" if form.code.errors else "false"
+                    ) }}
+                    {% for error in form.code.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+                {{ form.submit(class="button button-primary auth-submit") }}
+            </form>
+            <form class="resend-form" action="{{ url_for('auth.resend_verification') }}" method="post">
+                {{ resend_form.hidden_tag() }}
+                {{ resend_form.submit(class="text-button") }}
+            </form>
+            <p class="auth-switch-link"><a href="{{ url_for('auth.register') }}">Use a different email</a></p>
+        </div>
+    </section>
+</div>
+{% endblock %}

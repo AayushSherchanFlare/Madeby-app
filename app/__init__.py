@@ -4,11 +4,13 @@ from pathlib import Path
 
 from flask import Flask, render_template, request
 from flask_wtf.csrf import CSRFError, CSRFProtect
+from authlib.integrations.flask_client import OAuth
 
 from config import Config
 
 
 csrf = CSRFProtect()
+oauth = OAuth()
 
 
 def create_app(config_class=Config):
@@ -23,6 +25,15 @@ def create_app(config_class=Config):
         app.logger.warning("SECRET_KEY is using the insecure development fallback")
 
     csrf.init_app(app)
+    oauth.init_app(app)
+    if app.config["GOOGLE_CLIENT_ID"] and app.config["GOOGLE_CLIENT_SECRET"]:
+        oauth.register(
+            name="google",
+            client_id=app.config["GOOGLE_CLIENT_ID"],
+            client_secret=app.config["GOOGLE_CLIENT_SECRET"],
+            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+            client_kwargs={"scope": "openid email profile"},
+        )
     _create_upload_directories(app)
     _register_blueprints(app)
     _register_error_handlers(app)

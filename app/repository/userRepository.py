@@ -46,13 +46,190 @@ def find_registration_conflicts(username, email):
         return cursor.fetchall()
 
 
-def create_user(full_name, username, email, password_hash):
+def find_pending_conflicts(username, email):
+    with database_cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT username, email
+            FROM pending_registrations
+            WHERE username = %s OR email = %s
+            """,
+            (username, email),
+        )
+        return cursor.fetchall()
+
+
+def save_pending_registration(
+    full_name,
+    username,
+    email,
+    password_hash,
+    code_hash,
+    expires_at,
+    resend_available_at,
+):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            "DELETE FROM pending_registrations WHERE expires_at < UTC_TIMESTAMP()"
+        )
+        cursor.execute(
+            """
+            INSERT INTO pending_registrations (
+                full_name, username, email, password_hash, code_hash,
+                expires_at, resend_available_at
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                full_name = VALUES(full_name),
+                username = VALUES(username),
+                password_hash = VALUES(password_hash),
+                code_hash = VALUES(code_hash),
+                expires_at = VALUES(expires_at),
+                attempts = 0,
+                resend_available_at = VALUES(resend_available_at)
+            """,
+            (
+                full_name,
+                username,
+                email,
+                password_hash,
+                code_hash,
+                expires_at,
+                resend_available_at,
+            ),
+        )
+
+
+def find_pending_by_email(email):
+    with database_cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT verification_id, full_name, username, email, password_hash,
+                   code_hash, expires_at, attempts, resend_available_at
+            FROM pending_registrations
+            WHERE email = %s
+            LIMIT 1
+            """,
+            (email,),
+        )
+        return cursor.fetchone()
+
+
+def update_pending_code(email, code_hash, expires_at, resend_available_at):
     with database_cursor(commit=True) as cursor:
         cursor.execute(
             """
-            INSERT INTO users (full_name, username, email, password_hash)
-            VALUES (%s, %s, %s, %s)
+            UPDATE pending_registrations
+            SET code_hash = %s, expires_at = %s, attempts = 0,
+                resend_available_at = %s
+            WHERE email = %s
             """,
-            (full_name, username, email, password_hash),
+            (code_hash, expires_at, resend_available_at, email),
+        )
+        return cursor.rowcount == 1
+
+
+def record_verification_attempt(email):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            """
+            UPDATE pending_registrations
+            SET attempts = LEAST(attempts + 1, 255)
+            WHERE email = %s
+            """,
+            (email,),
+        )
+
+
+def complete_pending_registration(email, expected_code_hash):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            """
+            SELECT full_name, username, email, password_hash, code_hash
+            FROM pending_registrations
+            WHERE email = %s
+            FOR UPDATE
+            """,
+            (email,),
+        )
+        pending = cursor.fetchone()
+        if not pending or pending["code_hash"] != expected_code_hash:
+            return None
+        cursor.execute(
+            """
+            INSERT INTO users (
+                full_name, username, email, password_hash, email_verified
+            )
+            VALUES (%s, %s, %s, %s, TRUE)
+            """,
+            (
+                pending["full_name"],
+                pending["username"],
+                pending["email"],
+                pending["password_hash"],
+            ),
+        )
+        user_id = cursor.lastrowid
+        cursor.execute(
+            "DELETE FROM pending_registrations WHERE email = %s",
+            (email,),
+        )
+        return user_id
+
+
+def delete_pending_registration(email):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            "DELETE FROM pending_registrations WHERE email = %s",
+            (email,),
+        )
+
+
+def find_by_google_subject(subject):
+    with database_cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT user_id, full_name, role, account_status
+            FROM users
+            WHERE google_subject = %s
+            LIMIT 1
+            """,
+            (subject,),
+        )
+        return cursor.fetchone()
+
+
+def username_exists(username):
+    with database_cursor() as cursor:
+        cursor.execute(
+            "SELECT 1 FROM users WHERE username = %s LIMIT 1",
+            (username,),
+        )
+        return cursor.fetchone() is not None
+
+
+def link_google_identity(user_id, subject):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            """
+            UPDATE users
+            SET google_subject = %s, email_verified = TRUE
+            WHERE user_id = %s
+            """,
+            (subject, user_id),
+        )
+
+
+def create_google_user(full_name, username, email, password_hash, subject):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            """
+            INSERT INTO users (
+                full_name, username, email, password_hash, google_subject,
+                email_verified
+            )
+            VALUES (%s, %s, %s, %s, %s, TRUE)
+            """,
+            (full_name, username, email, password_hash, subject),
         )
         return cursor.lastrowid

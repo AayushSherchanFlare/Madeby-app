@@ -21,6 +21,8 @@ This repository currently contains **Phase 3: Social feed and profiles**. It kee
 - Complete version-one MySQL schema, constraints, indexes, and category seed data
 - Controller, repository, route, service, and form layers ready for later phases
 - Account registration with server-side validation and duplicate protection
+- Six-digit email verification with expiration, attempt limits, and resend cooldown
+- Google OpenID Connect login with verified-email account linking
 - Password hashing using Werkzeug's secure password utilities
 - Login, logout, persistent-session option, and protected account page
 - Safe post-login redirects and account-status enforcement
@@ -109,6 +111,7 @@ SOURCE E:/My App/database/migrations/001_add_relationship_triggers.sql;
 SOURCE E:/My App/database/migrations/002_streamline_schema.sql;
 SOURCE E:/My App/database/migrations/003_social_feed_posts.sql;
 SOURCE E:/My App/database/migrations/004_add_saved_posts.sql;
+SOURCE E:/My App/database/migrations/005_verified_auth.sql;
 ```
 
 The application database user should not be granted the elevated global
@@ -130,6 +133,21 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 Do not commit `.env`. For local HTTP development, leave `SESSION_COOKIE_SECURE=false`; set it to `true` when deployed behind HTTPS.
 
+To enable verified registration, configure the `SMTP_*` values in `.env`.
+For Gmail, use an app password rather than your normal Google password.
+
+To enable Google login, create a Google OAuth web client and add its client ID
+and secret as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. Set
+`GOOGLE_REDIRECT_URI` and register the same exact authorized redirect URI. For
+local development, the example is:
+
+```text
+http://127.0.0.1:5000/login/google/callback
+```
+
+The scheme, host, port, path, and trailing slash must match the Google Cloud
+configuration exactly.
+
 ### 5. Run MadeBy
 
 ```powershell
@@ -144,9 +162,10 @@ Visit `http://127.0.0.1:5000/`. The landing page does not query MySQL, so it can
 - [ ] `/` returns the responsive MadeBy landing page.
 - [ ] The mobile menu opens at a narrow browser width and can be used by keyboard.
 - [ ] A missing URL such as `/does-not-exist` displays the custom 404 page.
-- [ ] `SHOW TABLES;` in MySQL lists all eleven version-one tables.
+- [ ] `SHOW TABLES;` in MySQL lists all twelve version-one tables.
 - [ ] `SELECT * FROM categories;` returns the nine seeded creative categories.
-- [ ] A new account can register, log out, and log back in.
+- [ ] A new account can receive a verification code, verify, and log in.
+- [ ] “Continue with Google” creates or safely links a verified account.
 - [ ] `python -m pytest` completes successfully.
 - [ ] Upload directories exist and contain only tracked `.gitkeep` placeholders.
 - [ ] `.env` is ignored by Git and contains no committed credentials.
@@ -185,8 +204,8 @@ The automated tests use isolated fakes and do not require a running MySQL server
 
 ## Known limitations
 
-Featured landing-page content is still presentation data. Messaging is currently a placeholder. Account recovery, email verification, moderation, and the admin panel are not yet implemented.
+Featured landing-page content is still presentation data. Messaging is currently a placeholder. Account recovery, moderation, and the admin panel are not yet implemented.
 
 ## Planned improvements
 
-The next phase can add messaging, moderation, and administration. Longer-term possibilities include cloud storage, advanced analytics, OAuth, and email verification.
+The next phase can add messaging, moderation, and administration. Longer-term possibilities include cloud storage, advanced analytics, and additional OAuth providers.

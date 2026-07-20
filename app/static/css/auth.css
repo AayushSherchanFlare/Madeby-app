@@ -28,6 +28,23 @@
 .auth-form-wrap h1 { margin: 0 0 10px; font: 800 clamp(40px, 5vw, 64px)/.95 "Manrope", sans-serif; letter-spacing: -3px; }
 .auth-lead { margin: 0 0 34px; color: var(--muted); }
 .auth-lead a { color: var(--accent-readable); font-weight: 700; }
+.google-auth-button {
+  width: 100%; min-height: 52px; display: flex; align-items: center; justify-content: center;
+  gap: 11px; color: var(--ink); background: var(--white); border: 1px solid var(--line);
+  font-weight: 800;
+}
+.google-auth-button span {
+  width: 25px; height: 25px; display: grid; place-items: center; color: #4285f4;
+  background: #fff; border: 1px solid #dadce0; border-radius: 50%;
+  font: 800 14px Arial, sans-serif;
+}
+.google-auth-button:hover { background: var(--paper); border-color: var(--muted); }
+.auth-divider {
+  margin: 24px 0; display: flex; align-items: center; gap: 12px;
+  color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+}
+.auth-divider::before, .auth-divider::after { height: 1px; flex: 1; content: ""; background: var(--line); }
+.auth-divider span { white-space: nowrap; }
 .form-field { margin-bottom: 20px; }
 .form-field label:not(.check-label) { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 700; }
 .form-control {
@@ -42,6 +59,18 @@ html[data-theme="dark"] .field-error { color: #ff8e8e; }
 .check-label { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; }
 .check-label input { width: 17px; height: 17px; accent-color: var(--accent); }
 .auth-submit { width: 100%; margin-top: 8px; cursor: pointer; }
+.verification-code {
+  text-align: center; font: 800 26px/1 "Manrope", sans-serif;
+  letter-spacing: .35em; font-variant-numeric: tabular-nums;
+}
+.resend-form { margin-top: 18px; text-align: center; }
+.text-button {
+  padding: 7px; color: var(--accent-readable); background: transparent; border: 0;
+  font-weight: 800; cursor: pointer;
+}
+.text-button:hover { text-decoration: underline; }
+.auth-switch-link { margin-top: 8px; text-align: center; font-size: 12px; }
+.auth-switch-link a { color: var(--muted); }
 .account-page { min-height: 72vh; padding-block: clamp(70px, 10vw, 130px); }
 .account-heading { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 45px; }
 .account-heading h1 { margin: 0; font: 800 clamp(50px, 8vw, 92px)/.9 "Manrope", sans-serif; letter-spacing: -5px; }

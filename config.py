@@ -18,6 +18,19 @@ class Config:
     MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
     MYSQL_DATABASE = os.getenv("MYSQL_DATABASE", "madeby")
 
+    GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+    GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+    GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "")
+
+    SMTP_HOST = os.getenv("SMTP_HOST", "")
+    SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USERNAME = os.getenv("SMTP_USERNAME", "")
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", "")
+    SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
+    SMTP_USE_SSL = os.getenv("SMTP_USE_SSL", "false").lower() == "true"
+    MAIL_SUPPRESS_SEND = False
+
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024
     UPLOAD_ROOT = BASE_DIR / "app" / "static" / "uploads"
     PROFILE_UPLOAD_FOLDER = UPLOAD_ROOT / "profiles"
@@ -40,3 +53,4 @@ class TestConfig(Config):
     WTF_CSRF_ENABLED = False
     SESSION_COOKIE_SECURE = False
     SECRET_KEY = "test-secret-key"
+    MAIL_SUPPRESS_SEND = True

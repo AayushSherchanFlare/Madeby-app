@@ -8,7 +8,7 @@ DATABASE_DIR = Path(__file__).resolve().parents[1] / "database"
 def test_schema_declares_expected_tables_and_triggers():
     schema = (DATABASE_DIR / "schema.sql").read_text(encoding="utf-8")
 
-    assert len(re.findall(r"^CREATE TABLE ", schema, flags=re.MULTILINE)) == 11
+    assert len(re.findall(r"^CREATE TABLE ", schema, flags=re.MULTILINE)) == 12
     assert len(re.findall(r"^CREATE TRIGGER ", schema, flags=re.MULTILINE)) == 4
     assert "following_user_id" not in schema
 
@@ -57,3 +57,15 @@ def test_saved_posts_migration_is_restart_safe():
 
     assert "CREATE TABLE IF NOT EXISTS saved_posts" in migration
     assert "UNIQUE KEY uq_saved_posts_user_project" in migration
+
+
+def test_verified_auth_migration_is_restart_safe():
+    migration = (
+        DATABASE_DIR / "migrations" / "005_verified_auth.sql"
+    ).read_text(encoding="utf-8")
+
+    assert "CREATE PROCEDURE migrate_005_verified_auth()" in migration
+    assert "CREATE TABLE IF NOT EXISTS pending_registrations" in migration
+    assert "COLUMN_NAME = 'google_subject'" in migration
+    assert "COLUMN_NAME = 'email_verified'" in migration
+    assert "DROP PROCEDURE migrate_005_verified_auth" in migration

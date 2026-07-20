@@ -70,3 +70,19 @@ class LoginForm(FlaskForm):
     )
     remember = BooleanField("Keep me signed in")
     submit = SubmitField("Log in")
+
+
+class VerifyEmailForm(FlaskForm):
+    code = StringField(
+        "Verification code",
+        validators=[
+            DataRequired(),
+            Regexp(r"^\d{6}$", message="Enter the six-digit code."),
+        ],
+        filters=[_strip],
+    )
+    submit = SubmitField("Verify email")
+
+
+class ResendCodeForm(FlaskForm):
+    submit = SubmitField("Send a new code")

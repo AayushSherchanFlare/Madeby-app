@@ -21,8 +21,8 @@ def test_registration_accepts_valid_csrf_token(monkeypatch):
         WTF_CSRF_ENABLED = True
 
     monkeypatch.setattr(
-        "app.controllers.authController.register_user",
-        lambda **_details: 42,
+        "app.controllers.authController.start_email_registration",
+        lambda **details: details["email"],
     )
     client = create_app(CsrfTestConfig).test_client()
     page = client.get("/register")
@@ -45,7 +45,7 @@ def test_registration_accepts_valid_csrf_token(monkeypatch):
     )
 
     assert response.status_code == 302
-    assert response.headers["Location"].endswith("/login")
+    assert response.headers["Location"].endswith("/verify-email")
 
 
 def test_registration_validates_input_before_database_use(client):
@@ -71,10 +71,10 @@ def test_successful_registration_requires_login(client, monkeypatch):
 
     def fake_register(**details):
         submitted.update(details)
-        return 42
+        return details["email"]
 
     monkeypatch.setattr(
-        "app.controllers.authController.register_user",
+        "app.controllers.authController.start_email_registration",
         fake_register,
     )
 
@@ -90,14 +90,50 @@ def test_successful_registration_requires_login(client, monkeypatch):
     )
 
     assert response.status_code == 302
-    assert response.headers["Location"].endswith("/login")
+    assert response.headers["Location"].endswith("/verify-email")
     with client.session_transaction() as session:
         assert "user_id" not in session
         assert "role" not in session
-    login_page = client.get("/login")
-    assert b"Your account is ready. Log in to continue." in login_page.data
+    verification_page = client.get("/verify-email")
+    assert b"We sent a six-digit code to your email." in verification_page.data
+    assert b"Enter your code" in verification_page.data
     assert submitted["username"] == "maya_studio"
     assert submitted["email"] == "maya@example.com"
+
+
+def test_verified_registration_redirects_to_login(client, monkeypatch):
+    monkeypatch.setattr(
+        "app.controllers.authController.verify_email_registration",
+        lambda email, code: 42,
+    )
+    with client.session_transaction() as session:
+        session["pending_verification_email"] = "maya@example.com"
+
+    response = client.post("/verify-email", data={"code": "123456"})
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/login")
+    login_page = client.get("/login")
+    assert b"Email verified. You can now log in." in login_page.data
+
+
+def test_verification_rejects_non_six_digit_code(client):
+    with client.session_transaction() as session:
+        session["pending_verification_email"] = "maya@example.com"
+
+    response = client.post("/verify-email", data={"code": "12345"})
+
+    assert response.status_code == 200
+    assert b"Enter the six-digit code." in response.data
+
+
+def test_google_login_without_credentials_returns_to_login(client):
+    response = client.get("/login/google")
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/login")
+    page = client.get("/login")
+    assert b"Google login has not been configured yet." in page.data
 
 
 def test_login_rejects_invalid_credentials(client, monkeypatch):
@@ -235,31 +271,42 @@ def test_logout_clears_session(client):
         assert "user_id" not in session
 
 
-def test_passwords_are_hashed_before_storage(monkeypatch):
+def test_pending_registration_hashes_password_and_email_code(app, monkeypatch):
     captured = {}
+    delivered = {}
     monkeypatch.setattr(
         "app.services.authService.userRepository.find_registration_conflicts",
         lambda *_args: [],
     )
+    monkeypatch.setattr(
+        "app.services.authService.userRepository.find_pending_conflicts",
+        lambda *_args: [],
+    )
 
-    def fake_create_user(**details):
+    def fake_save(**details):
         captured.update(details)
-        return 10
 
     monkeypatch.setattr(
-        "app.services.authService.userRepository.create_user",
-        fake_create_user,
+        "app.services.authService.userRepository.save_pending_registration",
+        fake_save,
+    )
+    monkeypatch.setattr(
+        "app.services.authService.send_verification_code",
+        lambda email, code: delivered.update(email=email, code=code),
     )
 
-    from app.services.authService import register_user
+    from app.services.authService import start_email_registration
 
-    user_id = register_user(
-        "Maya Shrestha", "maya", "maya@example.com", "correct-horse"
-    )
+    with app.app_context():
+        email = start_email_registration(
+            "Maya Shrestha", "maya", "maya@example.com", "correct-horse"
+        )
 
-    assert user_id == 10
+    assert email == "maya@example.com"
     assert captured["password_hash"] != "correct-horse"
     assert captured["password_hash"].startswith(("scrypt:", "pbkdf2:"))
+    assert re.fullmatch(r"\d{6}", delivered["code"])
+    assert captured["code_hash"] != delivered["code"]
 
 
 @pytest.mark.parametrize(
@@ -276,16 +323,18 @@ def test_passwords_are_hashed_before_storage(monkeypatch):
         ),
     ],
 )
-def test_registration_reports_database_conflicts(monkeypatch, conflicts, field):
+def test_registration_reports_database_conflicts(app, monkeypatch, conflicts, field):
     monkeypatch.setattr(
         "app.services.authService.userRepository.find_registration_conflicts",
         lambda *_args: conflicts,
     )
 
-    from app.services.authService import RegistrationConflict, register_user
+    from app.services.authService import RegistrationConflict, start_email_registration
 
-    with pytest.raises(RegistrationConflict) as raised:
-        register_user("Maya Shrestha", "maya", "maya@example.com", "correct-horse")
+    with app.app_context(), pytest.raises(RegistrationConflict) as raised:
+        start_email_registration(
+            "Maya Shrestha", "maya", "maya@example.com", "correct-horse"
+        )
 
     assert raised.value.field == field
     assert str(raised.value) == raised.value.message

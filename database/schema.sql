@@ -13,6 +13,8 @@ CREATE TABLE users (
     username VARCHAR(30) NOT NULL,
     email VARCHAR(254) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+    google_subject VARCHAR(255) NULL,
+    email_verified BOOLEAN NOT NULL DEFAULT TRUE,
     biography VARCHAR(1000) NULL,
     profession VARCHAR(100) NULL,
     skills VARCHAR(500) NULL,
@@ -26,10 +28,29 @@ CREATE TABLE users (
     PRIMARY KEY (user_id),
     UNIQUE KEY uq_users_username (username),
     UNIQUE KEY uq_users_email (email),
+    UNIQUE KEY uq_users_google_subject (google_subject),
     KEY idx_users_status (account_status),
     CONSTRAINT chk_users_full_name_length CHECK (CHAR_LENGTH(TRIM(full_name)) BETWEEN 2 AND 120),
     CONSTRAINT chk_users_username_length CHECK (CHAR_LENGTH(TRIM(username)) BETWEEN 3 AND 30),
     CONSTRAINT chk_users_email_not_blank CHECK (CHAR_LENGTH(TRIM(email)) > 0)
+) ENGINE=InnoDB;
+
+CREATE TABLE pending_registrations (
+    verification_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    full_name VARCHAR(120) NOT NULL,
+    username VARCHAR(30) NOT NULL,
+    email VARCHAR(254) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    code_hash CHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    resend_available_at DATETIME NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (verification_id),
+    UNIQUE KEY uq_pending_registrations_username (username),
+    UNIQUE KEY uq_pending_registrations_email (email),
+    KEY idx_pending_registrations_expires (expires_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE categories (
