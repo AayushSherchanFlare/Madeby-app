@@ -22,6 +22,7 @@
                 {{ form.image(class="sr-only", accept=".jpg,.jpeg,.png,.webp", data_preview_target="image-preview") }}
                 {{ form.category_id(class="category-select") }}
             </div>
+            <p class="image-requirements">Supported sizes: 1000×1000, 1920×1080, or 1080×1920 pixels.</p>
             {% for error in form.image.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
             {{ form.submit(class="button button-primary composer-submit") }}
         </form>

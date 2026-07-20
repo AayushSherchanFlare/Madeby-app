@@ -2,6 +2,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from flask import current_app
+from PIL import Image, UnidentifiedImageError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.repository import socialRepository
@@ -13,13 +14,18 @@ IMAGE_SIGNATURES = {
     "png": lambda header: header.startswith(b"\x89PNG\r\n\x1a\n"),
     "webp": lambda header: header.startswith(b"RIFF") and header[8:12] == b"WEBP",
 }
+POST_IMAGE_RESOLUTIONS = {
+    (1000, 1000),
+    (1920, 1080),
+    (1080, 1920),
+}
 
 
 class InvalidImage(ValueError):
     pass
 
 
-def save_image(file_storage, folder):
+def save_image(file_storage, folder, allowed_resolutions=None):
     extension = Path(file_storage.filename or "").suffix.lower().lstrip(".")
     if extension not in current_app.config["ALLOWED_IMAGE_EXTENSIONS"]:
         raise InvalidImage("Upload a JPG, PNG, or WebP image.")
@@ -28,6 +34,20 @@ def save_image(file_storage, folder):
     file_storage.stream.seek(0)
     if not IMAGE_SIGNATURES[extension](header):
         raise InvalidImage("The selected file is not a valid image.")
+
+    try:
+        with Image.open(file_storage.stream) as image:
+            dimensions = image.size
+            image.verify()
+    except (UnidentifiedImageError, OSError, SyntaxError):
+        raise InvalidImage("The selected file is damaged or is not a valid image.")
+    finally:
+        file_storage.stream.seek(0)
+
+    if allowed_resolutions and dimensions not in allowed_resolutions:
+        raise InvalidImage(
+            "Post photos must be 1000×1000, 1920×1080, or 1080×1920 pixels."
+        )
 
     destination = Path(folder)
     destination.mkdir(parents=True, exist_ok=True)
@@ -42,6 +62,7 @@ def publish_post(user_id, content, image, category_id):
         filename = save_image(
             image,
             current_app.config["PROJECT_UPLOAD_FOLDER"],
+            POST_IMAGE_RESOLUTIONS,
         )
     try:
         return socialRepository.create_post(user_id, content, filename, category_id)
@@ -59,6 +80,7 @@ def update_existing_post(user_id, post, content, image, category_id):
         filename = save_image(
             image,
             current_app.config["PROJECT_UPLOAD_FOLDER"],
+            POST_IMAGE_RESOLUTIONS,
         )
     try:
         updated = socialRepository.update_post(
