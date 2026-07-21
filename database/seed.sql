@@ -13,4 +13,4 @@ INSERT IGNORE INTO categories (category_name) VALUES
 
 -- No default password is shipped. After authentication is implemented in Phase 2,
 -- register normally and promote the chosen account with:
--- UPDATE users SET role = 'admin' WHERE email = 'your-email@example.com';
+-- UPDATE users SET role = 'god' WHERE email = 'your-email@example.com';

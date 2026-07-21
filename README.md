@@ -117,6 +117,7 @@ SOURCE E:/My App/database/migrations/003_social_feed_posts.sql;
 SOURCE E:/My App/database/migrations/004_add_saved_posts.sql;
 SOURCE E:/My App/database/migrations/005_verified_auth.sql;
 SOURCE E:/My App/database/migrations/006_admin_dashboard.sql;
+SOURCE E:/My App/database/migrations/007_godhood_role.sql;
 ```
 
 The application database user should not be granted the elevated global
@@ -171,22 +172,22 @@ Visit `http://127.0.0.1:5000/`. The landing page does not query MySQL, so it can
 - [ ] `SELECT * FROM categories;` returns the nine seeded creative categories.
 - [ ] A new account can receive a verification code, verify, and log in.
 - [ ] “Continue with Google” creates or safely links a verified account.
-- [ ] The promoted creator account can open `/admin/`.
-- [ ] Admin suspensions block access and expire automatically.
-- [ ] Admin warnings appear in the target member's notifications.
+- [ ] The promoted creator account can open `/godhood/`.
+- [ ] Creator suspensions block access and expire automatically.
+- [ ] Creator warnings appear in the target member's notifications.
 - [ ] `python -m pytest` completes successfully.
 - [ ] Upload directories exist and contain only tracked `.gitkeep` placeholders.
 - [ ] `.env` is ignored by Git and contains no committed credentials.
 
-## Default administrator creation
+## Creator account setup
 
-MadeBy does not ship a default account or password. Register an account normally and promote it using an administrative MySQL session:
+MadeBy does not ship a default creator account or password. Register an account normally and promote it using an administrative MySQL session:
 
 ```sql
-UPDATE users SET role = 'admin' WHERE email = 'your-email@example.com';
+UPDATE users SET role = 'god' WHERE email = 'your-email@example.com';
 ```
 
-This avoids publishing reusable administrator credentials or a plaintext password.
+This avoids publishing reusable creator credentials or a plaintext password.
 
 ## Security foundations
 

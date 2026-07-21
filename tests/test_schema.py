@@ -82,3 +82,14 @@ def test_admin_dashboard_migration_is_restart_safe():
     assert "COLUMN_NAME = 'last_seen_at'" in migration
     assert "'admin_message'" in migration
     assert "DROP PROCEDURE migrate_006_admin_dashboard" in migration
+
+
+def test_godhood_role_migration_converts_existing_admins_safely():
+    migration = (
+        DATABASE_DIR / "migrations" / "007_godhood_role.sql"
+    ).read_text(encoding="utf-8")
+
+    assert "ENUM('user', 'admin', 'god')" in migration
+    assert "SET role = 'god'" in migration
+    assert "WHERE role = 'admin'" in migration
+    assert "ENUM('user', 'god')" in migration

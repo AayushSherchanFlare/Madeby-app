@@ -35,11 +35,11 @@ def login_required(view):
     return wrapped_view
 
 
-def admin_required(view):
+def god_required(view):
     @wraps(view)
     @login_required
     def wrapped_view(*args, **kwargs):
-        if session.get("role") != "admin":
+        if session.get("role") != "god":
             abort(403)
         return view(*args, **kwargs)
 

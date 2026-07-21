@@ -4,22 +4,22 @@
 {% block admin_content %}
 <header class="admin-page-header">
     <div><p class="admin-eyebrow">MadeBy control room</p><h1>Creator overview</h1></div>
-    <span class="admin-secure-label">Private administrator area</span>
+    <span class="admin-secure-label">Private creator area</span>
 </header>
 
 <section class="admin-metrics" aria-label="Platform summary">
-    <article><span>Total users</span><strong>{{ metrics.total_users or 0 }}</strong><a href="{{ url_for('admin.users') }}">Manage users</a></article>
+    <article><span>Total users</span><strong>{{ metrics.total_users or 0 }}</strong><a href="{{ url_for('godhood.users') }}">Manage users</a></article>
     <article><span>Online now</span><strong>{{ metrics.online_users or 0 }}</strong><small>Active in the last 5 minutes</small></article>
-    <article><span>All posts</span><strong>{{ metrics.total_posts or 0 }}</strong><a href="{{ url_for('admin.feed') }}">Moderate feed</a></article>
+    <article><span>All posts</span><strong>{{ metrics.total_posts or 0 }}</strong><a href="{{ url_for('godhood.feed') }}">Moderate feed</a></article>
     <article><span>Suspended</span><strong>{{ metrics.suspended_users or 0 }}</strong><small>Temporary restrictions</small></article>
 </section>
 
 <div class="admin-overview-grid">
     <section class="admin-panel">
-        <div class="admin-panel-heading"><div><p class="admin-eyebrow">New accounts</p><h2>Recent users</h2></div><a href="{{ url_for('admin.users') }}">View all</a></div>
+        <div class="admin-panel-heading"><div><p class="admin-eyebrow">New accounts</p><h2>Recent users</h2></div><a href="{{ url_for('godhood.users') }}">View all</a></div>
         <div class="admin-compact-list">
             {% for user in recent_users %}
-            <a href="{{ url_for('admin.users', q=user.username) }}">
+            <a href="{{ url_for('godhood.users', q=user.username) }}">
                 <span class="admin-avatar">{{ user.full_name[:1]|upper }}</span>
                 <span><strong>{{ user.full_name }}</strong><small>@{{ user.username }} · {{ user.email }}</small></span>
                 <time>{{ user.created_at.strftime("%b %d") }}</time>
@@ -32,7 +32,7 @@
         <div class="admin-panel-heading"><div><p class="admin-eyebrow">Account safety</p><h2>Password privacy</h2></div></div>
         <div class="admin-security-note">
             <span aria-hidden="true">&#128274;</span>
-            <p><strong>Passwords cannot be viewed.</strong> MadeBy stores one-way password hashes, protecting members even from administrators. Use a reset workflow if account recovery is needed.</p>
+            <p><strong>Passwords cannot be viewed.</strong> MadeBy stores one-way password hashes, protecting members even from the creator. Use a reset workflow if account recovery is needed.</p>
         </div>
         <dl class="admin-summary-list">
             <div><dt>Pending verifications</dt><dd>{{ metrics.pending_registrations or 0 }}</dd></div>
@@ -42,7 +42,7 @@
 </div>
 
 <section class="admin-panel admin-audit-preview">
-    <div class="admin-panel-heading"><div><p class="admin-eyebrow">Accountability</p><h2>Latest admin actions</h2></div><a href="{{ url_for('admin.audit') }}">Full audit log</a></div>
+    <div class="admin-panel-heading"><div><p class="admin-eyebrow">Accountability</p><h2>Latest creator actions</h2></div><a href="{{ url_for('godhood.audit') }}">Full audit log</a></div>
     {% include "admin/_audit_table.html" %}
 </section>
 {% endblock %}

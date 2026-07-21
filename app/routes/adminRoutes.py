@@ -11,61 +11,61 @@ from app.controllers.adminController import (
     users_page,
     warning_action,
 )
-from app.decorators import admin_required
+from app.decorators import god_required
 
 
-admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
+godhood_bp = Blueprint("godhood", __name__, url_prefix="/godhood")
 
 
-@admin_bp.get("/")
-@admin_required
+@godhood_bp.get("/")
+@god_required
 def dashboard():
     return dashboard_page()
 
 
-@admin_bp.get("/feed")
-@admin_required
+@godhood_bp.get("/feed")
+@god_required
 def feed():
     return feed_page()
 
 
-@admin_bp.get("/users")
-@admin_required
+@godhood_bp.get("/users")
+@god_required
 def users():
     return users_page()
 
 
-@admin_bp.get("/audit")
-@admin_required
+@godhood_bp.get("/audit")
+@god_required
 def audit():
     return audit_page()
 
 
-@admin_bp.post("/users/<int:user_id>/suspend")
-@admin_required
+@godhood_bp.post("/users/<int:user_id>/suspend")
+@god_required
 def suspend_user(user_id):
     return suspend_user_action(user_id)
 
 
-@admin_bp.post("/users/<int:user_id>/unsuspend")
-@admin_required
+@godhood_bp.post("/users/<int:user_id>/unsuspend")
+@god_required
 def unsuspend_user(user_id):
     return unsuspend_user_action(user_id)
 
 
-@admin_bp.post("/users/<int:user_id>/warning")
-@admin_required
+@godhood_bp.post("/users/<int:user_id>/warning")
+@god_required
 def send_warning(user_id):
     return warning_action(user_id)
 
 
-@admin_bp.post("/users/<int:user_id>/delete")
-@admin_required
+@godhood_bp.post("/users/<int:user_id>/delete")
+@god_required
 def delete_user(user_id):
     return delete_user_action(user_id)
 
 
-@admin_bp.post("/posts/<int:project_id>/delete")
-@admin_required
+@godhood_bp.post("/posts/<int:project_id>/delete")
+@god_required
 def delete_post(project_id):
     return delete_post_action(project_id)

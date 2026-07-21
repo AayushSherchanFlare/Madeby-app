@@ -7,7 +7,7 @@ def admin_user():
         "full_name": "MadeBy Creator",
         "username": "creator",
         "email": "creator@example.com",
-        "role": "admin",
+        "role": "god",
         "account_status": "active",
         "suspended_until": None,
         "profile_image": None,
@@ -17,7 +17,7 @@ def admin_user():
 def log_in_admin(client):
     with client.session_transaction() as session:
         session["user_id"] = 1
-        session["role"] = "admin"
+        session["role"] = "god"
 
 
 def install_admin(monkeypatch):
@@ -28,10 +28,10 @@ def install_admin(monkeypatch):
 
 
 def test_admin_dashboard_requires_login(client):
-    response = client.get("/admin/")
+    response = client.get("/godhood/")
 
     assert response.status_code == 302
-    assert "/login?next=/admin/" in response.headers["Location"]
+    assert "/login?next=/godhood/" in response.headers["Location"]
 
 
 def test_non_admin_cannot_open_creator_dashboard(client, monkeypatch):
@@ -43,7 +43,7 @@ def test_non_admin_cannot_open_creator_dashboard(client, monkeypatch):
         session["user_id"] = 7
         session["role"] = "user"
 
-    assert client.get("/admin/").status_code == 403
+    assert client.get("/godhood/").status_code == 403
 
 
 def test_admin_dashboard_renders_metrics_and_password_safety(
@@ -71,7 +71,7 @@ def test_admin_dashboard_renders_metrics_and_password_safety(
         lambda: [],
     )
 
-    response = client.get("/admin/")
+    response = client.get("/godhood/")
 
     assert response.status_code == 200
     assert b"Creator overview" in response.data
@@ -114,7 +114,7 @@ def test_admin_users_page_shows_email_status_and_actions(client, monkeypatch):
         ],
     )
 
-    response = client.get("/admin/users")
+    response = client.get("/godhood/users")
 
     assert response.status_code == 200
     assert b"maya@example.com" in response.data
@@ -148,7 +148,7 @@ def test_admin_can_suspend_user(client, monkeypatch):
     )
 
     response = client.post(
-        "/admin/users/7/suspend",
+        "/godhood/users/7/suspend",
         data={"days": "14", "reason": "Repeated spam"},
     )
 

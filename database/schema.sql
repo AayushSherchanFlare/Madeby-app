@@ -21,7 +21,7 @@ CREATE TABLE users (
     profile_image VARCHAR(255) NULL,
     cover_image VARCHAR(255) NULL,
     website_url VARCHAR(2048) NULL,
-    role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+    role ENUM('user', 'god') NOT NULL DEFAULT 'user',
     account_status ENUM('active', 'disabled') NOT NULL DEFAULT 'active',
     suspended_until DATETIME NULL,
     last_seen_at DATETIME NULL,

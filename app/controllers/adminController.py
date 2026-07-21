@@ -13,7 +13,7 @@ from app.services.adminService import remove_post, remove_user_account
 
 def _current_admin():
     user = userRepository.find_by_id(session["user_id"])
-    if not user or user["role"] != "admin":
+    if not user or user["role"] != "god":
         abort(403)
     return user
 
@@ -74,7 +74,7 @@ def suspend_user_action(user_id):
     form = SuspendUserForm()
     if not form.validate_on_submit():
         flash("Choose a suspension between 1 and 365 days.", "error")
-        return redirect(url_for("admin.users"))
+        return redirect(url_for("godhood.users"))
     until = datetime.now(UTC).replace(tzinfo=None) + timedelta(days=form.days.data)
     reason = form.reason.data or "No reason supplied"
     details = (
@@ -83,7 +83,7 @@ def suspend_user_action(user_id):
     )
     adminRepository.suspend_user(admin["user_id"], user_id, until, details)
     flash(f"@{user['username']} is suspended for {form.days.data} day(s).", "success")
-    return redirect(url_for("admin.users"))
+    return redirect(url_for("godhood.users"))
 
 
 def unsuspend_user_action(user_id):
@@ -98,7 +98,7 @@ def unsuspend_user_action(user_id):
         f"Restored access for @{user['username']}",
     )
     flash(f"@{user['username']} can access MadeBy again.", "success")
-    return redirect(url_for("admin.users"))
+    return redirect(url_for("godhood.users"))
 
 
 def warning_action(user_id):
@@ -107,10 +107,10 @@ def warning_action(user_id):
     form = WarningMessageForm()
     if not form.validate_on_submit():
         flash("Write a warning between 2 and 1,000 characters.", "error")
-        return redirect(url_for("admin.users"))
+        return redirect(url_for("godhood.users"))
     adminRepository.send_warning(admin["user_id"], user_id, form.message.data)
     flash(f"Creator message sent to @{user['username']}.", "success")
-    return redirect(url_for("admin.users"))
+    return redirect(url_for("godhood.users"))
 
 
 def delete_user_action(user_id):
@@ -121,7 +121,7 @@ def delete_user_action(user_id):
         abort(400)
     remove_user_account(admin["user_id"], user)
     flash(f"@{user['username']} and their content were permanently deleted.", "success")
-    return redirect(url_for("admin.users"))
+    return redirect(url_for("godhood.users"))
 
 
 def delete_post_action(project_id):
@@ -133,4 +133,4 @@ def delete_post_action(project_id):
     if not post:
         abort(404)
     flash(f"Post {project_id} was permanently deleted.", "success")
-    return redirect(url_for("admin.feed"))
+    return redirect(url_for("godhood.feed"))

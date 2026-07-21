@@ -10,7 +10,7 @@
     <label class="sr-only" for="feed-search">Search posts or people</label>
     <input id="feed-search" name="q" value="{{ search }}" placeholder="Search post text, creator, username, or email">
     <button type="submit">Search</button>
-    {% if search %}<a href="{{ url_for('admin.feed') }}">Clear</a>{% endif %}
+    {% if search %}<a href="{{ url_for('godhood.feed') }}">Clear</a>{% endif %}
 </form>
 
 <div class="admin-feed-grid">
@@ -24,7 +24,7 @@
         {% if post.cover_image %}<img src="{{ url_for('static', filename='uploads/projects/' ~ post.cover_image) }}" alt="Post photo by {{ post.full_name }}">{% endif %}
         <footer>
             <span>{{ post.like_count }} likes · {{ post.comment_count }} comments · {{ post.created_at.strftime("%b %d, %Y") }}</span>
-            <form action="{{ url_for('admin.delete_post', project_id=post.project_id) }}" method="post" data-confirm="Permanently delete this post? This cannot be undone.">
+            <form action="{{ url_for('godhood.delete_post', project_id=post.project_id) }}" method="post" data-confirm="Permanently delete this post? This cannot be undone.">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button class="admin-button danger" type="submit">Delete post</button>
             </form>

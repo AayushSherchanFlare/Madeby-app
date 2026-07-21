@@ -7,11 +7,11 @@
             <tr>
                 <td>{{ log.action_type|replace("_", " ")|title }}</td>
                 <td>{{ log.details or "No details" }}</td>
-                <td>{{ log.admin_name or "Deleted administrator" }}</td>
+                <td>{{ log.admin_name or "Deleted creator" }}</td>
                 <td>{{ log.created_at.strftime("%b %d, %Y %I:%M %p") }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-{% else %}<p class="admin-empty">No administrator actions have been recorded.</p>{% endif %}
+{% else %}<p class="admin-empty">No creator actions have been recorded.</p>{% endif %}
