@@ -1,0 +1,84 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Users - MadeBy creator dashboard{% endblock %}
+
+{% block admin_content %}
+<header class="admin-page-header">
+    <div><p class="admin-eyebrow">Member management</p><h1>Users</h1><p>Review activity, send warnings, suspend access, or permanently remove accounts.</p></div>
+</header>
+
+<section class="admin-inline-metrics">
+    <span><strong>{{ metrics.total_users or 0 }}</strong> total</span>
+    <span class="is-online"><strong>{{ metrics.online_users or 0 }}</strong> online</span>
+    <span><strong>{{ metrics.offline_users or 0 }}</strong> offline</span>
+    <span class="is-suspended"><strong>{{ metrics.suspended_users or 0 }}</strong> suspended</span>
+</section>
+
+<form class="admin-search" method="get">
+    <label class="sr-only" for="user-search">Search users</label>
+    <input id="user-search" name="q" value="{{ search }}" placeholder="Search name, username, or email">
+    <button type="submit">Search</button>
+    {% if search %}<a href="{{ url_for('admin.users') }}">Clear</a>{% endif %}
+</form>
+
+<div class="admin-user-list">
+    {% for user in users %}
+    <article class="admin-user-card">
+        <div class="admin-user-primary">
+            <span class="admin-avatar">{{ user.full_name[:1]|upper }}</span>
+            <div>
+                <h2>{{ user.full_name }}</h2>
+                <p>@{{ user.username }}</p>
+                <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+            </div>
+        </div>
+        <dl class="admin-user-data">
+            <div><dt>Status</dt><dd>
+                {% if user.suspended_until and user.suspended_until > now %}
+                <span class="status-pill suspended">Suspended until {{ user.suspended_until.strftime("%b %d, %Y") }}</span>
+                {% elif user.is_online %}
+                <span class="status-pill online">Online</span>
+                {% else %}<span class="status-pill offline">Offline</span>{% endif %}
+            </dd></div>
+            <div><dt>Posts</dt><dd>{{ user.post_count }}</dd></div>
+            <div><dt>Joined</dt><dd>{{ user.created_at.strftime("%b %d, %Y") }}</dd></div>
+            <div><dt>Password</dt><dd>Protected hash — not viewable</dd></div>
+        </dl>
+        <div class="admin-user-actions">
+            <details>
+                <summary>Message</summary>
+                <form action="{{ url_for('admin.send_warning', user_id=user.user_id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <label for="warning-{{ user.user_id }}">Warning or creator notice</label>
+                    <textarea id="warning-{{ user.user_id }}" name="message" maxlength="1000" required></textarea>
+                    <button type="submit">Send to notifications</button>
+                </form>
+            </details>
+            {% if user.suspended_until and user.suspended_until > now %}
+            <form action="{{ url_for('admin.unsuspend_user', user_id=user.user_id) }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="admin-button secondary" type="submit">Restore access</button>
+            </form>
+            {% else %}
+            <details>
+                <summary>Suspend</summary>
+                <form action="{{ url_for('admin.suspend_user', user_id=user.user_id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <label for="days-{{ user.user_id }}">Number of days</label>
+                    <input id="days-{{ user.user_id }}" name="days" type="number" min="1" max="365" value="7" required>
+                    <label for="reason-{{ user.user_id }}">Reason</label>
+                    <input id="reason-{{ user.user_id }}" name="reason" maxlength="500">
+                    <button type="submit">Confirm suspension</button>
+                </form>
+            </details>
+            {% endif %}
+            <form action="{{ url_for('admin.delete_user', user_id=user.user_id) }}" method="post" data-confirm="Permanently delete this user and every post, comment, like, follow, and upload they own? This cannot be undone.">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="admin-button danger" type="submit">Delete account</button>
+            </form>
+        </div>
+    </article>
+    {% else %}
+    <div class="admin-empty-card"><h2>No users found.</h2><p>Try a different search.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

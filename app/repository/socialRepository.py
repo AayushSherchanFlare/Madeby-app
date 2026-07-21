@@ -150,7 +150,7 @@ def notifications_for_user(user_id, limit=50):
         cursor.execute(
             """
             SELECT n.notification_id, n.notification_type, n.related_project_id,
-                   n.is_read, n.created_at, n.sender_user_id,
+                   n.message_text, n.is_read, n.created_at, n.sender_user_id,
                    COALESCE(sender.full_name, 'Someone') AS sender_name,
                    sender.username AS sender_username,
                    sender.profile_image AS sender_profile_image,

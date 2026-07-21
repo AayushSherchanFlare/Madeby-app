@@ -1,0 +1,11 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Audit log - MadeBy creator dashboard{% endblock %}
+
+{% block admin_content %}
+<header class="admin-page-header">
+    <div><p class="admin-eyebrow">Accountability</p><h1>Audit log</h1><p>A permanent record of creator moderation actions.</p></div>
+</header>
+<section class="admin-panel">
+    {% include "admin/_audit_table.html" %}
+</section>
+{% endblock %}

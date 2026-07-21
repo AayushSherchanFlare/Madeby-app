@@ -47,7 +47,6 @@ def google_callback_route():
 
 
 @auth_bp.post("/logout")
-@login_required
 def logout():
     return logout_user()
 

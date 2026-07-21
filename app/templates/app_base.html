@@ -20,6 +20,9 @@
             <a class="{{ 'is-active' if request.endpoint in ('social.profile', 'social.user_profile', 'social.followers', 'social.following') }}" href="{{ url_for('social.profile') }}"><span aria-hidden="true">&#9679;</span> Profile</a>
             <a class="{{ 'is-active' if request.endpoint == 'social.friends' }}" href="{{ url_for('social.friends') }}"><span aria-hidden="true">&#9823;</span> Friends</a>
             <a class="{{ 'is-active' if request.endpoint == 'social.settings' }}" href="{{ url_for('social.settings') }}"><span aria-hidden="true">&#9881;</span> Settings</a>
+            {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('admin.dashboard') }}"><span aria-hidden="true">&#9733;</span> Creator dashboard</a>
+            {% endif %}
         </nav>
         <a class="sidebar-create" href="{{ url_for('social.create_post') }}"><span aria-hidden="true">+</span> Add post</a>
         <div class="sidebar-account">
@@ -59,6 +62,7 @@
         <a class="{{ 'is-active' if request.endpoint in ('social.profile', 'social.user_profile', 'social.followers', 'social.following') }}" href="{{ url_for('social.profile') }}">Profile</a>
         <a class="{{ 'is-active' if request.endpoint == 'social.friends' }}" href="{{ url_for('social.friends') }}">Friends</a>
         <a class="{{ 'is-active' if request.endpoint == 'social.settings' }}" href="{{ url_for('social.settings') }}">Settings</a>
+        {% if current_user.role == 'admin' %}<a href="{{ url_for('admin.dashboard') }}">Creator dashboard</a>{% endif %}
     </nav>
 
     {% include "partials/flash_messages.html" %}

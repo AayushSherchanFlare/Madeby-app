@@ -6,7 +6,7 @@
     <div class="section-title">
         <p class="eyebrow">Recent activity</p>
         <h1>Notifications</h1>
-        <p>Likes, comments, and new followers appear here.</p>
+        <p>Likes, comments, new followers, and creator messages appear here.</p>
     </div>
     {% if notifications %}
     <div class="notification-list">
@@ -29,6 +29,8 @@
                 {% if notification.notification_type == "like" %} liked your post.
                 {% elif notification.notification_type == "comment" %} commented on your post.
                 {% elif notification.notification_type == "follow" %} started following you.
+                {% elif notification.notification_type == "admin_message" %}
+                sent you a creator notice: <span class="admin-notice-text">{{ notification.message_text }}</span>
                 {% endif %}
                 <time datetime="{{ notification.created_at.isoformat() }}">{{ notification.created_at.strftime("%b %d, %Y at %I:%M %p") }}</time>
             </div>
@@ -52,7 +54,7 @@
     <div class="empty-card">
         <span aria-hidden="true">&#128276;</span>
         <h2>No notifications yet.</h2>
-        <p>When someone likes or comments on your post, or follows you, it will appear here.</p>
+        <p>Community activity and messages from the MadeBy creator will appear here.</p>
     </div>
     {% endif %}
 </section>

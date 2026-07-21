@@ -1,0 +1,37 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}All feed - MadeBy creator dashboard{% endblock %}
+
+{% block admin_content %}
+<header class="admin-page-header">
+    <div><p class="admin-eyebrow">Content moderation</p><h1>All feed</h1><p>Search all member posts and remove content that violates community rules.</p></div>
+</header>
+
+<form class="admin-search" method="get">
+    <label class="sr-only" for="feed-search">Search posts or people</label>
+    <input id="feed-search" name="q" value="{{ search }}" placeholder="Search post text, creator, username, or email">
+    <button type="submit">Search</button>
+    {% if search %}<a href="{{ url_for('admin.feed') }}">Clear</a>{% endif %}
+</form>
+
+<div class="admin-feed-grid">
+    {% for post in posts %}
+    <article class="admin-post-card">
+        <header>
+            <div><strong>{{ post.full_name }}</strong><span>@{{ post.username }} · {{ post.email }}</span></div>
+            <span class="status-pill {{ 'suspended' if post.status != 'published' else 'online' }}">{{ post.status }}</span>
+        </header>
+        {% if post.description %}<p>{{ post.description }}</p>{% endif %}
+        {% if post.cover_image %}<img src="{{ url_for('static', filename='uploads/projects/' ~ post.cover_image) }}" alt="Post photo by {{ post.full_name }}">{% endif %}
+        <footer>
+            <span>{{ post.like_count }} likes · {{ post.comment_count }} comments · {{ post.created_at.strftime("%b %d, %Y") }}</span>
+            <form action="{{ url_for('admin.delete_post', project_id=post.project_id) }}" method="post" data-confirm="Permanently delete this post? This cannot be undone.">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="admin-button danger" type="submit">Delete post</button>
+            </form>
+        </footer>
+    </article>
+    {% else %}
+    <div class="admin-empty-card"><h2>No posts found.</h2><p>Try a different search.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

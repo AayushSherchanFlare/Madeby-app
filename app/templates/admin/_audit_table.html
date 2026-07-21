@@ -1,0 +1,17 @@
+{% if audit_logs %}
+<div class="admin-table-wrap">
+    <table class="admin-table">
+        <thead><tr><th>Action</th><th>Details</th><th>Administrator</th><th>Date</th></tr></thead>
+        <tbody>
+            {% for log in audit_logs %}
+            <tr>
+                <td>{{ log.action_type|replace("_", " ")|title }}</td>
+                <td>{{ log.details or "No details" }}</td>
+                <td>{{ log.admin_name or "Deleted administrator" }}</td>
+                <td>{{ log.created_at.strftime("%b %d, %Y %I:%M %p") }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}<p class="admin-empty">No administrator actions have been recorded.</p>{% endif %}

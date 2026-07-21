@@ -36,6 +36,10 @@ This repository currently contains **Phase 3: Social feed and profiles**. It kee
 - Public member profiles with clickable follower and following lists
 - Mutual-follow friends list with a messaging placeholder
 - Profile editing and secure password changes
+- Creator-only administration dashboard with user and feed search
+- Timed account suspension, warning notifications, and permanent moderation actions
+- Online/offline activity summaries and a permanent administrator audit trail
+- One-way password storage that prevents administrators from reading member passwords
 - Responsive desktop/mobile dashboard derived from the supplied UI reference
 - Automated authentication, social, database-helper, route, and schema tests
 
@@ -112,6 +116,7 @@ SOURCE E:/My App/database/migrations/002_streamline_schema.sql;
 SOURCE E:/My App/database/migrations/003_social_feed_posts.sql;
 SOURCE E:/My App/database/migrations/004_add_saved_posts.sql;
 SOURCE E:/My App/database/migrations/005_verified_auth.sql;
+SOURCE E:/My App/database/migrations/006_admin_dashboard.sql;
 ```
 
 The application database user should not be granted the elevated global
@@ -166,6 +171,9 @@ Visit `http://127.0.0.1:5000/`. The landing page does not query MySQL, so it can
 - [ ] `SELECT * FROM categories;` returns the nine seeded creative categories.
 - [ ] A new account can receive a verification code, verify, and log in.
 - [ ] “Continue with Google” creates or safely links a verified account.
+- [ ] The promoted creator account can open `/admin/`.
+- [ ] Admin suspensions block access and expire automatically.
+- [ ] Admin warnings appear in the target member's notifications.
 - [ ] `python -m pytest` completes successfully.
 - [ ] Upload directories exist and contain only tracked `.gitkeep` placeholders.
 - [ ] `.env` is ignored by Git and contains no committed credentials.

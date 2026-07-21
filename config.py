@@ -54,3 +54,6 @@ class TestConfig(Config):
     SESSION_COOKIE_SECURE = False
     SECRET_KEY = "test-secret-key"
     MAIL_SUPPRESS_SEND = True
+    GOOGLE_CLIENT_ID = ""
+    GOOGLE_CLIENT_SECRET = ""
+    GOOGLE_REDIRECT_URI = ""

@@ -23,6 +23,8 @@ CREATE TABLE users (
     website_url VARCHAR(2048) NULL,
     role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
     account_status ENUM('active', 'disabled') NOT NULL DEFAULT 'active',
+    suspended_until DATETIME NULL,
+    last_seen_at DATETIME NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id),
@@ -210,8 +212,9 @@ CREATE TABLE notifications (
     notification_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     recipient_user_id BIGINT UNSIGNED NOT NULL,
     sender_user_id BIGINT UNSIGNED NULL,
-    notification_type ENUM('like', 'comment', 'follow') NOT NULL,
+    notification_type ENUM('like', 'comment', 'follow', 'admin_message') NOT NULL,
     related_project_id BIGINT UNSIGNED NULL,
+    message_text VARCHAR(1000) NULL,
     is_read BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (notification_id),
@@ -233,8 +236,21 @@ BEFORE INSERT ON notifications
 FOR EACH ROW
 BEGIN
     IF NOT (
-        (NEW.notification_type IN ('like', 'comment') AND NEW.related_project_id IS NOT NULL)
-        OR (NEW.notification_type = 'follow' AND NEW.related_project_id IS NULL)
+        (
+            NEW.notification_type IN ('like', 'comment')
+            AND NEW.related_project_id IS NOT NULL
+            AND NEW.message_text IS NULL
+        )
+        OR (
+            NEW.notification_type = 'follow'
+            AND NEW.related_project_id IS NULL
+            AND NEW.message_text IS NULL
+        )
+        OR (
+            NEW.notification_type = 'admin_message'
+            AND NEW.related_project_id IS NULL
+            AND CHAR_LENGTH(TRIM(NEW.message_text)) BETWEEN 1 AND 1000
+        )
     ) THEN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Notification type and related project do not match';
@@ -246,8 +262,21 @@ BEFORE UPDATE ON notifications
 FOR EACH ROW
 BEGIN
     IF NOT (
-        (NEW.notification_type IN ('like', 'comment') AND NEW.related_project_id IS NOT NULL)
-        OR (NEW.notification_type = 'follow' AND NEW.related_project_id IS NULL)
+        (
+            NEW.notification_type IN ('like', 'comment')
+            AND NEW.related_project_id IS NOT NULL
+            AND NEW.message_text IS NULL
+        )
+        OR (
+            NEW.notification_type = 'follow'
+            AND NEW.related_project_id IS NULL
+            AND NEW.message_text IS NULL
+        )
+        OR (
+            NEW.notification_type = 'admin_message'
+            AND NEW.related_project_id IS NULL
+            AND CHAR_LENGTH(TRIM(NEW.message_text)) BETWEEN 1 AND 1000
+        )
     ) THEN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Notification type and related project do not match';
@@ -255,3 +284,26 @@ BEGIN
 END//
 
 DELIMITER ;
+
+CREATE TABLE admin_audit_logs (
+    audit_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    admin_user_id BIGINT UNSIGNED NULL,
+    action_type ENUM(
+        'suspend_user', 'unsuspend_user', 'delete_user',
+        'delete_post', 'send_warning'
+    ) NOT NULL,
+    target_user_id BIGINT UNSIGNED NULL,
+    target_project_id BIGINT UNSIGNED NULL,
+    details VARCHAR(1000) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (audit_id),
+    KEY idx_admin_audit_created (created_at),
+    KEY idx_admin_audit_admin (admin_user_id),
+    KEY idx_admin_audit_target_user (target_user_id),
+    CONSTRAINT fk_admin_audit_admin FOREIGN KEY (admin_user_id)
+        REFERENCES users (user_id) ON UPDATE CASCADE ON DELETE SET NULL,
+    CONSTRAINT fk_admin_audit_target_user FOREIGN KEY (target_user_id)
+        REFERENCES users (user_id) ON UPDATE CASCADE ON DELETE SET NULL,
+    CONSTRAINT fk_admin_audit_target_project FOREIGN KEY (target_project_id)
+        REFERENCES projects (project_id) ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE=InnoDB;

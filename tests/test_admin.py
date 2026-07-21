@@ -1,0 +1,157 @@
+from datetime import datetime
+
+
+def admin_user():
+    return {
+        "user_id": 1,
+        "full_name": "MadeBy Creator",
+        "username": "creator",
+        "email": "creator@example.com",
+        "role": "admin",
+        "account_status": "active",
+        "suspended_until": None,
+        "profile_image": None,
+    }
+
+
+def log_in_admin(client):
+    with client.session_transaction() as session:
+        session["user_id"] = 1
+        session["role"] = "admin"
+
+
+def install_admin(monkeypatch):
+    monkeypatch.setattr(
+        "app.repository.userRepository.find_by_id",
+        lambda _user_id: admin_user(),
+    )
+
+
+def test_admin_dashboard_requires_login(client):
+    response = client.get("/admin/")
+
+    assert response.status_code == 302
+    assert "/login?next=/admin/" in response.headers["Location"]
+
+
+def test_non_admin_cannot_open_creator_dashboard(client, monkeypatch):
+    monkeypatch.setattr(
+        "app.repository.userRepository.find_by_id",
+        lambda _user_id: {**admin_user(), "role": "user"},
+    )
+    with client.session_transaction() as session:
+        session["user_id"] = 7
+        session["role"] = "user"
+
+    assert client.get("/admin/").status_code == 403
+
+
+def test_admin_dashboard_renders_metrics_and_password_safety(
+    client, monkeypatch
+):
+    install_admin(monkeypatch)
+    log_in_admin(client)
+    monkeypatch.setattr(
+        "app.controllers.adminController.adminRepository.dashboard_metrics",
+        lambda: {
+            "total_users": 12,
+            "online_users": 3,
+            "offline_users": 9,
+            "suspended_users": 1,
+            "total_posts": 24,
+            "pending_registrations": 2,
+        },
+    )
+    monkeypatch.setattr(
+        "app.controllers.adminController.adminRepository.recent_users",
+        lambda: [],
+    )
+    monkeypatch.setattr(
+        "app.controllers.adminController.adminRepository.recent_audit_logs",
+        lambda: [],
+    )
+
+    response = client.get("/admin/")
+
+    assert response.status_code == 200
+    assert b"Creator overview" in response.data
+    assert b"Passwords cannot be viewed." in response.data
+    assert b"All feed" in response.data
+    assert b"Users" in response.data
+
+
+def test_admin_users_page_shows_email_status_and_actions(client, monkeypatch):
+    install_admin(monkeypatch)
+    log_in_admin(client)
+    monkeypatch.setattr(
+        "app.controllers.adminController.adminRepository.dashboard_metrics",
+        lambda: {
+            "total_users": 1,
+            "online_users": 1,
+            "offline_users": 0,
+            "suspended_users": 0,
+            "total_posts": 2,
+            "pending_registrations": 0,
+        },
+    )
+    monkeypatch.setattr(
+        "app.controllers.adminController.adminRepository.list_users",
+        lambda _search: [
+            {
+                "user_id": 7,
+                "full_name": "Maya Shrestha",
+                "username": "maya",
+                "email": "maya@example.com",
+                "profile_image": None,
+                "account_status": "active",
+                "suspended_until": None,
+                "last_seen_at": datetime(2026, 7, 25),
+                "created_at": datetime(2026, 7, 20),
+                "email_verified": True,
+                "post_count": 2,
+                "is_online": True,
+            }
+        ],
+    )
+
+    response = client.get("/admin/users")
+
+    assert response.status_code == 200
+    assert b"maya@example.com" in response.data
+    assert b"Protected hash" in response.data
+    assert b"Send to notifications" in response.data
+    assert b"Delete account" in response.data
+
+
+def test_admin_can_suspend_user(client, monkeypatch):
+    install_admin(monkeypatch)
+    log_in_admin(client)
+    monkeypatch.setattr(
+        "app.controllers.adminController.adminRepository.find_manageable_user",
+        lambda _user_id: {
+            "user_id": 7,
+            "username": "maya",
+            "email": "maya@example.com",
+            "role": "user",
+        },
+    )
+    suspended = {}
+    monkeypatch.setattr(
+        "app.controllers.adminController.adminRepository.suspend_user",
+        lambda admin_id, user_id, until, details: suspended.update(
+            admin_id=admin_id,
+            user_id=user_id,
+            until=until,
+            details=details,
+        )
+        or True,
+    )
+
+    response = client.post(
+        "/admin/users/7/suspend",
+        data={"days": "14", "reason": "Repeated spam"},
+    )
+
+    assert response.status_code == 302
+    assert suspended["user_id"] == 7
+    assert "Repeated spam" in suspended["details"]

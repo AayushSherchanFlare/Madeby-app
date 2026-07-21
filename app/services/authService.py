@@ -150,13 +150,19 @@ def login_or_create_google_user(userinfo):
 
     user = userRepository.find_by_google_subject(subject)
     if user:
-        if user["account_status"] != "active":
+        suspended_until = user.get("suspended_until")
+        if user["account_status"] != "active" or (
+            suspended_until and suspended_until > _now()
+        ):
             raise GoogleAuthenticationError("This MadeBy account is disabled.")
         return user
 
     existing = userRepository.find_by_email(email)
     if existing:
-        if existing["account_status"] != "active":
+        suspended_until = existing.get("suspended_until")
+        if existing["account_status"] != "active" or (
+            suspended_until and suspended_until > _now()
+        ):
             raise GoogleAuthenticationError("This MadeBy account is disabled.")
         userRepository.link_google_identity(existing["user_id"], subject)
         return existing
@@ -191,6 +197,9 @@ def authenticate_user(email, password):
     password_matches = check_password_hash(password_hash, password)
     if not user or not password_matches:
         return None
-    if user["account_status"] != "active":
+    suspended_until = user.get("suspended_until")
+    if user["account_status"] != "active" or (
+        suspended_until and suspended_until > _now()
+    ):
         return None
     return user

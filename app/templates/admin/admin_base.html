@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css', v=asset_version('css/admin.css')) }}">
+{% endblock %}
+{% block body_class %}admin-body{% endblock %}
+
+{% block body %}
+<a class="skip-link" href="#admin-content">Skip to content</a>
+<div class="admin-shell">
+    <aside class="admin-sidebar">
+        <a class="brand admin-brand" href="{{ url_for('admin.dashboard') }}" aria-label="MadeBy creator dashboard"><span class="sr-only">MadeBy</span></a>
+        <div class="admin-identity">
+            <span>Creator access</span>
+            <strong>{{ current_admin.full_name }}</strong>
+        </div>
+        <nav class="admin-nav" aria-label="Creator dashboard navigation">
+            <a class="{{ 'is-active' if request.endpoint == 'admin.dashboard' }}" href="{{ url_for('admin.dashboard') }}"><span aria-hidden="true">&#9635;</span> Overview</a>
+            <a class="{{ 'is-active' if request.endpoint == 'admin.feed' }}" href="{{ url_for('admin.feed') }}"><span aria-hidden="true">&#9783;</span> All feed</a>
+            <a class="{{ 'is-active' if request.endpoint == 'admin.users' }}" href="{{ url_for('admin.users') }}"><span aria-hidden="true">&#9673;</span> Users</a>
+            <a class="{{ 'is-active' if request.endpoint == 'admin.audit' }}" href="{{ url_for('admin.audit') }}"><span aria-hidden="true">&#9201;</span> Audit log</a>
+        </nav>
+        <div class="admin-sidebar-footer">
+            <a href="{{ url_for('social.feed') }}">&larr; Community feed</a>
+            <form action="{{ url_for('auth.logout') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Log out</button>
+            </form>
+        </div>
+    </aside>
+
+    <header class="admin-mobile-header">
+        <a class="brand" href="{{ url_for('admin.dashboard') }}" aria-label="MadeBy creator dashboard"><span class="sr-only">MadeBy</span></a>
+        <button class="admin-menu-button" type="button" aria-expanded="false" aria-controls="admin-mobile-menu">Menu</button>
+    </header>
+    <nav class="admin-mobile-menu" id="admin-mobile-menu" aria-label="Creator dashboard mobile navigation">
+        <a href="{{ url_for('admin.dashboard') }}">Overview</a>
+        <a href="{{ url_for('admin.feed') }}">All feed</a>
+        <a href="{{ url_for('admin.users') }}">Users</a>
+        <a href="{{ url_for('admin.audit') }}">Audit log</a>
+        <a href="{{ url_for('social.feed') }}">Community feed</a>
+    </nav>
+
+    {% include "partials/flash_messages.html" %}
+    <main class="admin-main" id="admin-content">
+        {% block admin_content %}{% endblock %}
+    </main>
+</div>
+<script src="{{ url_for('static', filename='js/admin.js', v=asset_version('js/admin.js')) }}" defer></script>
+{% endblock %}

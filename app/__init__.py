@@ -43,7 +43,7 @@ def create_app(config_class=Config):
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("X-Frame-Options", "DENY")
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
-        if request.endpoint and request.endpoint.startswith("social."):
+        if request.endpoint and request.endpoint.startswith(("social.", "admin.")):
             response.headers["Cache-Control"] = "no-store"
         return response
 
@@ -74,12 +74,14 @@ def _create_upload_directories(app):
 
 def _register_blueprints(app):
     from app.routes.authRoutes import auth_bp
+    from app.routes.adminRoutes import admin_bp
     from app.routes.mainRoutes import main_bp
     from app.routes.socialRoutes import social_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(social_bp)
+    app.register_blueprint(admin_bp)
 
 
 def _register_error_handlers(app):

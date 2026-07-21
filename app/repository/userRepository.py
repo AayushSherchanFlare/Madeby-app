@@ -5,7 +5,8 @@ def find_by_email(email):
     with database_cursor() as cursor:
         cursor.execute(
             """
-            SELECT user_id, full_name, password_hash, role, account_status
+            SELECT user_id, full_name, password_hash, role, account_status,
+                   suspended_until
             FROM users
             WHERE email = %s
             LIMIT 1
@@ -21,6 +22,7 @@ def find_by_id(user_id):
             """
             SELECT user_id, full_name, username, email, role, account_status,
                    profession, biography, website_url, profile_image, cover_image,
+                   suspended_until, last_seen_at,
                    (SELECT COUNT(*) FROM notifications n
                     WHERE n.recipient_user_id = users.user_id
                       AND n.is_read = FALSE) AS unread_notification_count
@@ -189,7 +191,7 @@ def find_by_google_subject(subject):
     with database_cursor() as cursor:
         cursor.execute(
             """
-            SELECT user_id, full_name, role, account_status
+            SELECT user_id, full_name, role, account_status, suspended_until
             FROM users
             WHERE google_subject = %s
             LIMIT 1
@@ -233,3 +235,19 @@ def create_google_user(full_name, username, email, password_hash, subject):
             (full_name, username, email, password_hash, subject),
         )
         return cursor.lastrowid
+
+
+def touch_last_seen(user_id):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            """
+            UPDATE users
+            SET last_seen_at = UTC_TIMESTAMP()
+            WHERE user_id = %s
+              AND (
+                  last_seen_at IS NULL
+                  OR last_seen_at < UTC_TIMESTAMP() - INTERVAL 1 MINUTE
+              )
+            """,
+            (user_id,),
+        )
