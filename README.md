@@ -17,7 +17,7 @@ This repository currently contains **Phase 3: Social feed and profiles**. It kee
 - Environment-based application and MySQL configuration
 - Reusable, transaction-aware MySQL connection helper
 - CSRF protection for state-changing forms
-- Secure session defaults and a 5 MB request limit
+- Secure session defaults and a 20 MB request limit
 - Complete version-one MySQL schema, constraints, indexes, and category seed data
 - Controller, repository, route, service, and form layers ready for later phases
 - Account registration with server-side validation and duplicate protection

@@ -31,7 +31,7 @@ class Config:
     SMTP_USE_SSL = os.getenv("SMTP_USE_SSL", "false").lower() == "true"
     MAIL_SUPPRESS_SEND = False
 
-    MAX_CONTENT_LENGTH = 5 * 1024 * 1024
+    MAX_CONTENT_LENGTH = 20 * 1024 * 1024
     UPLOAD_ROOT = BASE_DIR / "app" / "static" / "uploads"
     PROFILE_UPLOAD_FOLDER = UPLOAD_ROOT / "profiles"
     COVER_UPLOAD_FOLDER = UPLOAD_ROOT / "covers"

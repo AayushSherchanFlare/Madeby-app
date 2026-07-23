@@ -13,18 +13,48 @@ document.querySelectorAll("input[data-preview-target]").forEach((input) => {
   const preview = document.getElementById(input.dataset.previewTarget);
   const image = preview?.querySelector("img");
   if (!preview || !image) return;
+  let previewUrl = null;
 
   input.addEventListener("change", () => {
     const file = input.files?.[0];
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     if (!file) {
       preview.hidden = true;
       image.removeAttribute("src");
+      previewUrl = null;
       return;
     }
 
-    image.src = URL.createObjectURL(file);
+    previewUrl = URL.createObjectURL(file);
+    image.src = previewUrl;
     preview.hidden = false;
   });
+});
+
+document.querySelectorAll("select.ratio-select[data-preview-target]").forEach((select) => {
+  const preview = document.getElementById(select.dataset.previewTarget);
+  if (!preview) return;
+
+  function updatePreviewRatio() {
+    preview.dataset.ratio = select.value;
+  }
+
+  select.addEventListener("change", updatePreviewRatio);
+  updatePreviewRatio();
+});
+
+document.querySelectorAll("textarea[data-post-preview-text]").forEach((textarea) => {
+  const previewText = document.getElementById(textarea.dataset.postPreviewText);
+  if (!previewText) return;
+
+  function updatePreviewText() {
+    const text = textarea.value.trim();
+    previewText.textContent = text || "Your post text will appear here.";
+    previewText.classList.toggle("is-empty", !text);
+  }
+
+  textarea.addEventListener("input", updatePreviewText);
+  updatePreviewText();
 });
 
 const dashboardMenuButton = document.querySelector(".dashboard-menu-button");

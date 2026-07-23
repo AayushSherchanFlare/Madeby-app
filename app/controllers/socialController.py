@@ -102,6 +102,7 @@ def create_post_page():
                 form.content.data,
                 form.image.data,
                 form.category_id.data,
+                form.aspect_ratio.data,
             )
         except InvalidImage as error:
             form.image.errors.append(str(error))
@@ -155,6 +156,7 @@ def edit_post_page(project_id):
                 form.content.data,
                 form.image.data,
                 form.category_id.data,
+                form.aspect_ratio.data,
             )
         except InvalidImage as error:
             form.image.errors.append(str(error))

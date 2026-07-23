@@ -10,7 +10,7 @@
         <p class="composer-intro">Update the text, category, or replace the current photo.</p>
         <form method="post" enctype="multipart/form-data" novalidate>
             {{ form.hidden_tag() }}
-            {{ form.content(class="composer-textarea", placeholder="What would you like to share?", rows="7") }}
+            {{ form.content(class="composer-textarea", placeholder="What would you like to share?", rows="7", data_post_preview_text="post-preview-text") }}
             {% for error in form.content.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
             {% if post.cover_image %}
             <div class="existing-post-image">
@@ -18,14 +18,22 @@
                 <img src="{{ url_for('static', filename='uploads/projects/' ~ post.cover_image) }}" alt="Current post photo">
             </div>
             {% endif %}
-            <div class="image-preview" id="image-preview" hidden><img alt="New photo preview"></div>
             <div class="composer-options">
                 <label class="upload-choice" for="{{ form.image.id }}">&#9635; Replace photo</label>
                 {{ form.image(class="sr-only", accept=".jpg,.jpeg,.png,.webp", data_preview_target="image-preview") }}
+                {{ form.aspect_ratio(class="ratio-select", data_preview_target="image-preview", aria_label="New photo shape") }}
                 {{ form.category_id(class="category-select") }}
             </div>
-            <p class="image-requirements">Supported sizes: 1000×1000, 1920×1080, or 1080×1920 pixels.</p>
+            <p class="image-requirements">A replacement photo can use any resolution. It will be center-cropped to 1:1, 9:16, or 16:9.</p>
             {% for error in form.image.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            {% for error in form.aspect_ratio.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            <section class="composer-preview" aria-labelledby="post-preview-heading">
+                <p class="eyebrow" id="post-preview-heading">Updated post preview</p>
+                <article class="composer-preview-card">
+                    <p class="composer-preview-text" id="post-preview-text">{{ form.content.data or "Your post text will appear here." }}</p>
+                    <div class="image-preview" id="image-preview" data-ratio="1:1" hidden><img alt="New photo preview"></div>
+                </article>
+            </section>
             {{ form.submit(class="button button-primary composer-submit", value="Save changes") }}
         </form>
     </div>

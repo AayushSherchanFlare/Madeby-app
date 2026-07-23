@@ -17,6 +17,16 @@ class PostForm(FlaskForm):
         "Photo",
         validators=[FileAllowed(IMAGE_EXTENSIONS, "Upload a JPG, PNG, or WebP image.")],
     )
+    aspect_ratio = SelectField(
+        "Photo shape",
+        choices=[
+            ("1:1", "Square · 1:1"),
+            ("9:16", "Portrait · 9:16"),
+            ("16:9", "Landscape · 16:9"),
+        ],
+        validators=[DataRequired()],
+        default="1:1",
+    )
     category_id = SelectField("Category", coerce=int, validators=[Optional()])
     submit = SubmitField("Publish post")
 

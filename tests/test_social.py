@@ -334,6 +334,10 @@ def test_post_requires_text_or_photo(client, monkeypatch):
 
     assert response.status_code == 200
     assert b"Write something or choose a photo." in response.data
+    assert b"Post preview" in response.data
+    assert b"Square" in response.data
+    assert b"Portrait" in response.data
+    assert b"Landscape" in response.data
     assert called is False
 
 
@@ -346,12 +350,13 @@ def test_text_post_publishes_and_returns_to_feed(client, monkeypatch):
     )
     published = {}
 
-    def fake_publish(user_id, content, image, category_id):
+    def fake_publish(user_id, content, image, category_id, aspect_ratio):
         published.update(
             user_id=user_id,
             content=content,
             image=image,
             category_id=category_id,
+            aspect_ratio=aspect_ratio,
         )
 
     monkeypatch.setattr(
@@ -371,6 +376,7 @@ def test_text_post_publishes_and_returns_to_feed(client, monkeypatch):
         "content": "My first post",
         "image": None,
         "category_id": 0,
+        "aspect_ratio": "1:1",
     }
 
 
@@ -398,13 +404,21 @@ def test_owner_can_update_post(client, monkeypatch):
     )
     updated = {}
 
-    def fake_update(user_id, existing_post, content, image, category_id):
+    def fake_update(
+        user_id,
+        existing_post,
+        content,
+        image,
+        category_id,
+        aspect_ratio,
+    ):
         updated.update(
             user_id=user_id,
             project_id=existing_post["project_id"],
             content=content,
             image=image,
             category_id=category_id,
+            aspect_ratio=aspect_ratio,
         )
         return True
 
@@ -421,6 +435,7 @@ def test_owner_can_update_post(client, monkeypatch):
     assert response.status_code == 302
     assert response.headers["Location"].endswith("/posts/15")
     assert updated["content"] == "Updated text"
+    assert updated["aspect_ratio"] == "1:1"
 
 
 def test_non_owner_cannot_edit_or_delete_post(client, monkeypatch):
