@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Join MadeBy{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <section class="auth-art" aria-labelledby="register-art-title">
+        <div class="auth-art-copy">
+            <p class="eyebrow">Made for makers</p>
+            <h1 id="register-art-title">Put your work<br>in the world.</h1>
+            <p>Join a community where original projects lead and the people behind them get noticed.</p>
+        </div>
+    </section>
+    <section class="auth-panel" aria-labelledby="register-title">
+        <div class="auth-form-wrap">
+            <p class="eyebrow">Create an account</p>
+            <h1 id="register-title">Join MadeBy</h1>
+            <p class="auth-lead">Already a member? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+            <form method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="form-field">
+                    {{ form.full_name.label }}
+                    {{ form.full_name(class="form-control", autocomplete="name", autofocus=true, aria_invalid="true" if form.full_name.errors else "false") }}
+                    {% for error in form.full_name.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+                <div class="form-field">
+                    {{ form.username.label }}
+                    {{ form.username(class="form-control", autocomplete="username", aria_invalid="true" if form.username.errors else "false") }}
+                    {% for error in form.username.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+                <div class="form-field">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control", autocomplete="email", inputmode="email", aria_invalid="true" if form.email.errors else "false") }}
+                    {% for error in form.email.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+                <div class="form-field">
+                    {{ form.password.label }}
+                    {{ form.password(class="form-control", autocomplete="new-password", aria_invalid="true" if form.password.errors else "false") }}
+                    {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+                <p class="password-hint">Use at least 8 characters.</p>
+                <div class="form-field">
+                    {{ form.confirm_password.label }}
+                    {{ form.confirm_password(class="form-control", autocomplete="new-password", aria_invalid="true" if form.confirm_password.errors else "false") }}
+                    {% for error in form.confirm_password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+                {{ form.submit(class="button button-primary auth-submit") }}
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

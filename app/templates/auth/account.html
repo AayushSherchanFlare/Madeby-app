@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Your account — MadeBy{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<section class="account-page container" aria-labelledby="account-title">
+    <div class="account-heading">
+        <div>
+            <p class="eyebrow">Your creative home</p>
+            <h1 id="account-title">Hello, {{ user.full_name.split()[0] }}.</h1>
+        </div>
+        <a class="button button-secondary" href="{{ url_for('main.landing') }}#projects">Explore work</a>
+    </div>
+    <div class="account-grid">
+        <article class="account-card">
+            <p class="eyebrow">Account details</p>
+            <h2>{{ user.full_name }}</h2>
+            <dl class="account-details">
+                <dt>Username</dt><dd>@{{ user.username }}</dd>
+                <dt>Email</dt><dd>{{ user.email }}</dd>
+                <dt>Role</dt><dd>{{ user.role|capitalize }}</dd>
+            </dl>
+        </article>
+        <article class="account-card account-card-accent">
+            <div class="account-initial" aria-hidden="true">{{ user.full_name[:1]|upper }}</div>
+            <h2>Your portfolio starts here.</h2>
+            <p>Profile editing and project publishing are the next MadeBy features to arrive.</p>
+        </article>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,73 @@
+.hero { min-height: 680px; display: grid; grid-template-columns: .92fr 1.08fr; align-items: center; gap: 70px; padding-block: 70px; }
+.eyebrow { margin: 0 0 15px; color: var(--accent-readable); font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+.hero h1 { margin: 0; font: 800 clamp(60px, 7.2vw, 105px)/.87 "Manrope", sans-serif; letter-spacing: -6px; }
+.hero h1 span { color: var(--accent-readable); }
+.hero-intro { max-width: 540px; margin: 30px 0; color: var(--muted); font-size: 18px; }
+.hero-actions { display: flex; gap: 12px; }
+.hero-proof { display: flex; gap: 34px; margin-top: 38px; color: var(--muted); font-size: 13px; }
+.hero-proof strong { color: var(--ink); font-size: 18px; }
+.hero-art { position: relative; min-height: 520px; }
+.art-card { position: absolute; display: flex; padding: 30px; box-shadow: 0 22px 55px rgba(23,23,23,.15); font-family: "Manrope", sans-serif; font-weight: 800; }
+.art-card-one { inset: 0 14% 20% 0; align-items: flex-end; color: white; background: #22515d; font-size: clamp(30px, 4vw, 58px); line-height: .9; }
+.art-card-one::before { content: ""; position: absolute; width: 42%; height: 62%; top: 0; right: 12%; background: #fdc247; border-radius: 0 0 100px 100px; }
+.art-card-two { width: 38%; height: 50%; right: 0; top: 6%; align-items: flex-start; justify-content: flex-end; color: #171717; background: #bada55; font-size: 70px; }
+.art-card-two::after { content: ""; position: absolute; inset: 30% 18% 10%; border: 16px solid #171717; border-radius: 50%; }
+.art-card-three { width: 44%; height: 34%; right: 5%; bottom: 0; align-items: flex-end; color: white; background: #5b43c5; font-size: 27px; line-height: 1; }
+.art-sticker { position: absolute; z-index: 2; left: -30px; bottom: 7%; width: 112px; aspect-ratio: 1; display: grid; place-content: center; color: white; background: var(--accent); border-radius: 50%; text-align: center; font-size: 12px; font-weight: 800; line-height: 1.1; text-transform: uppercase; transform: rotate(-10deg); }
+.project-section { padding-block: 100px; background: var(--white); }
+.section-heading { display: flex; justify-content: space-between; align-items: end; margin-bottom: 34px; }
+.section-heading h2 { margin: 0; font: 800 clamp(34px, 5vw, 58px)/1 "Manrope", sans-serif; letter-spacing: -3px; }
+.text-link { padding-bottom: 5px; border-bottom: 1px solid var(--ink); font-weight: 700; }
+.project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.project-card { min-width: 0; }
+.project-visual { position: relative; aspect-ratio: 4/3; overflow: hidden; padding: 22px; }
+.project-visual::before, .project-visual::after { content: ""; position: absolute; }
+.visual-coral { background: #fa6b54; }
+.visual-coral::before { width: 62%; aspect-ratio: 1; right: -10%; bottom: -25%; border: 35px solid #ffd4a4; border-radius: 50%; }
+.visual-blue { background: #b9d7f0; }
+.visual-blue::before { inset: 18% 25%; background: #294b87; transform: rotate(20deg); }
+.visual-lime { background: #c8e765; }
+.visual-lime::before { width: 48%; height: 78%; left: 26%; top: 11%; background: #f5f2e9; border-radius: 28px; box-shadow: inset 0 0 0 6px #171717; }
+.visual-number { position: relative; z-index: 2; font-weight: 800; }
+.visual-word { position: absolute; z-index: 2; left: 22px; bottom: 18px; color: white; font: 800 clamp(25px, 3vw, 43px) "Manrope", sans-serif; text-transform: uppercase; }
+.project-meta { display: flex; justify-content: space-between; gap: 12px; padding-top: 16px; }
+.project-meta h3, .creator-card h3 { margin: 0 0 3px; font: 700 17px "Manrope", sans-serif; }
+.project-meta p, .creator-card p { margin: 0; color: var(--muted); font-size: 13px; }
+.category-pill { align-self: flex-start; padding: 5px 8px; border: 1px solid var(--line); font-size: 10px; font-weight: 700; white-space: nowrap; }
+.creator-section { padding-block: 100px; }
+.creator-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.creator-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; padding: 20px; background: var(--white); border: 1px solid var(--line); }
+.avatar { width: 54px; aspect-ratio: 1; display: grid; place-items: center; color: white; background: #22515d; border-radius: 50%; font-weight: 800; }
+.creator-card:nth-child(2) .avatar { background: #5b43c5; }
+.creator-card:nth-child(3) .avatar { color: var(--ink); background: #fdc247; }
+.follow-preview { padding: 7px 11px; border: 1px solid var(--line); color: var(--muted); background: transparent; }
+.join-section { color: white; background: var(--accent); text-align: center; }
+.join-inner { min-height: 540px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.join-section .eyebrow { color: #dcd8ff; }
+.join-section h2 { margin: 0; font: 800 clamp(48px, 8vw, 94px)/.92 "Manrope", sans-serif; letter-spacing: -5px; }
+.join-section p:not(.eyebrow) { margin: 24px 0; color: #e8e6ff; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding-top: 55px; }
+  .hero-copy { max-width: 650px; }
+  .hero-art { min-height: 470px; }
+  .project-grid { grid-template-columns: 1fr 1fr; }
+  .project-card:last-child { grid-column: span 2; width: calc(50% - 11px); }
+  .creator-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .hero { min-height: auto; gap: 45px; padding-bottom: 55px; }
+  .hero h1 { font-size: 56px; letter-spacing: -4px; }
+  .hero-actions { align-items: stretch; flex-direction: column; }
+  .hero-proof { flex-direction: column; gap: 8px; }
+  .hero-art { min-height: 360px; }
+  .art-card-one { right: 8%; }
+  .art-card-two { width: 40%; height: 45%; }
+  .art-card-three { width: 50%; }
+  .art-sticker { left: -5px; width: 90px; }
+  .project-section, .creator-section { padding-block: 70px; }
+  .section-heading { align-items: flex-start; flex-direction: column; gap: 20px; }
+  .project-grid { grid-template-columns: 1fr; }
+  .project-card:last-child { grid-column: auto; width: auto; }
+  .join-section h2 { letter-spacing: -3px; }
+}

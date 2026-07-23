@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}File too large — MadeBy{% endblock %}
+{% block content %}<section class="error-page container"><p class="error-code">413</p><h1>That upload is too large.</h1><p>Each request must be no larger than 5 MB.</p><a class="button button-primary" href="{{ url_for('main.landing') }}">Back to MadeBy</a></section>{% endblock %}

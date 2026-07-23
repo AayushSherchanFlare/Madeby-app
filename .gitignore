@@ -1,0 +1,12 @@
+env/
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+.testdeps/
+madeby_backup_*.sql
+app/static/uploads/**
+!app/static/uploads/**/
+!app/static/uploads/**/.gitkeep

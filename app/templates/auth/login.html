@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Log in to MadeBy{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <section class="auth-art" aria-labelledby="login-art-title">
+        <div class="auth-art-copy">
+            <p class="eyebrow">Welcome back</p>
+            <h1 id="login-art-title">Keep making.<br>Keep sharing.</h1>
+            <p>Your creative home is ready when you are.</p>
+        </div>
+    </section>
+    <section class="auth-panel" aria-labelledby="login-title">
+        <div class="auth-form-wrap">
+            <p class="eyebrow">Member access</p>
+            <h1 id="login-title">Log in</h1>
+            <p class="auth-lead">New here? <a href="{{ url_for('auth.register') }}">Create an account</a></p>
+            <form method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="form-field">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control", autocomplete="email", inputmode="email", autofocus=true, aria_invalid="true" if form.email.errors else "false") }}
+                    {% for error in form.email.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+                <div class="form-field">
+                    {{ form.password.label }}
+                    {{ form.password(class="form-control", autocomplete="current-password", aria_invalid="true" if form.password.errors else "false") }}
+                    {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+                <div class="form-field">
+                    <label class="check-label">{{ form.remember() }} <span>{{ form.remember.label.text }}</span></label>
+                </div>
+                {{ form.submit(class="button button-primary auth-submit") }}
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

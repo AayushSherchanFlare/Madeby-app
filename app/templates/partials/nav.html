@@ -1,0 +1,26 @@
+<header class="site-header" id="top">
+    <nav class="nav container" aria-label="Main navigation">
+        <a class="brand" href="{{ url_for('main.landing') }}" aria-label="MadeBy home"><span class="sr-only">MadeBy</span></a>
+        <button class="menu-button" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open menu</span><span></span><span></span></button>
+        <div class="nav-links" id="nav-links">
+            <a href="{{ url_for('main.landing') }}#projects">Explore</a>
+            <a href="{{ url_for('main.landing') }}#creator-heading">Creators</a>
+            <button class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode" title="Switch colour theme">
+                <span class="theme-icon theme-icon-moon" aria-hidden="true">☾</span>
+                <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+                <span class="sr-only theme-label">Switch to dark mode</span>
+            </button>
+            <span class="nav-divider" aria-hidden="true"></span>
+            {% if session.get("user_id") %}
+            <a class="nav-login" href="{{ url_for('auth.account') }}">My account</a>
+            <form class="nav-logout" action="{{ url_for('auth.logout') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button button-small button-primary" type="submit">Log out</button>
+            </form>
+            {% else %}
+            <a class="nav-login" href="{{ url_for('auth.login') }}">Log in</a>
+            <a class="button button-small button-primary" href="{{ url_for('auth.register') }}">Join MadeBy</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>

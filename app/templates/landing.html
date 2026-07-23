@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}MadeBy — Share what you create{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">{% endblock %}
+
+{% block content %}
+<section class="hero container" aria-labelledby="hero-title">
+    <div class="hero-copy">
+        <p class="eyebrow">A home for creative work</p>
+        <h1 id="hero-title">Make it.<br><span>Share it.</span><br>Be known for it.</h1>
+        <p class="hero-intro">MadeBy brings portfolios and creative communities together. Publish your best work, meet collaborators, and find your next spark.</p>
+        <div class="hero-actions">
+            <a class="button button-primary" href="{{ url_for('auth.account') if session.get('user_id') else url_for('auth.register') }}">Start creating</a>
+            <a class="button button-secondary" href="#projects">Explore work</a>
+        </div>
+        <div class="hero-proof" aria-label="MadeBy community highlights">
+            <span><strong>12+</strong> disciplines</span>
+            <span><strong>One</strong> creative community</span>
+        </div>
+    </div>
+    <div class="hero-art" aria-label="A collage representing creative projects">
+        <div class="art-card art-card-one"><span>BRAND<br>STORIES</span></div>
+        <div class="art-card art-card-two"><span>01</span></div>
+        <div class="art-card art-card-three"><span>Form<br>&amp; feeling</span></div>
+        <div class="art-sticker">made<br>with<br>intent</div>
+    </div>
+</section>
+
+<section class="project-section" id="projects" aria-labelledby="project-heading">
+    <div class="container">
+        <div class="section-heading">
+            <div><p class="eyebrow">Selected today</p><h2 id="project-heading">Work worth seeing</h2></div>
+            <a class="text-link" href="#projects">View all projects <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="project-grid">
+            {% for project in featured_projects %}
+            <article class="project-card">
+                <div class="project-visual visual-{{ project.accent }}">
+                    <span class="visual-number">0{{ loop.index }}</span>
+                    <span class="visual-word">{{ project.category.split(' ')[0] }}</span>
+                </div>
+                <div class="project-meta">
+                    <div><h3>{{ project.title }}</h3><p>by {{ project.creator }}</p></div>
+                    <span class="category-pill">{{ project.category }}</span>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="creator-section container" aria-labelledby="creator-heading">
+    <div class="section-heading">
+        <div><p class="eyebrow">People to know</p><h2 id="creator-heading">Featured creators</h2></div>
+    </div>
+    <div class="creator-grid">
+        {% for creator in featured_creators %}
+        <article class="creator-card">
+            <div class="avatar" aria-hidden="true">{{ creator.initials }}</div>
+            <div><h3>{{ creator.name }}</h3><p>{{ creator.profession }}</p></div>
+            <button class="follow-preview" type="button" disabled aria-label="Follow feature coming soon">Follow</button>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="join-section" id="join" aria-labelledby="join-heading">
+    <div class="container join-inner">
+        <p class="eyebrow">Your work belongs here</p>
+        <h2 id="join-heading">Ready to show<br>what you’re made of?</h2>
+        <p>Create your MadeBy account and start shaping your creative presence.</p>
+        <a class="button button-light" href="{{ url_for('auth.account') if session.get('user_id') else url_for('auth.register') }}">
+            {{ "Go to your account" if session.get("user_id") else "Join MadeBy" }}
+        </a>
+    </div>
+</section>
+{% endblock %}
