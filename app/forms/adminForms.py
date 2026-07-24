@@ -1,12 +1,21 @@
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, SubmitField, TextAreaField
+from wtforms import IntegerField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
 
 
 class SuspendUserForm(FlaskForm):
-    days = IntegerField(
-        "Days",
-        validators=[DataRequired(), NumberRange(min=1, max=365)],
+    duration = IntegerField(
+        "Duration",
+        validators=[DataRequired(), NumberRange(min=1, max=8760)],
+    )
+    unit = SelectField(
+        "Unit",
+        choices=[
+            ("hours", "Hours"),
+            ("days", "Days"),
+            ("years", "Years"),
+        ],
+        validators=[DataRequired()],
     )
     reason = StringField(
         "Reason",

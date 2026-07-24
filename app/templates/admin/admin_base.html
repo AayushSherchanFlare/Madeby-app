@@ -21,6 +21,10 @@
             <a class="{{ 'is-active' if request.endpoint == 'godhood.audit' }}" href="{{ url_for('godhood.audit') }}"><span aria-hidden="true">&#9201;</span> Audit log</a>
         </nav>
         <div class="admin-sidebar-footer">
+            <button class="admin-theme-toggle" type="button" aria-pressed="false">
+                <span class="admin-theme-icon" aria-hidden="true">&#9790;</span>
+                <span class="admin-theme-label">Dark mode</span>
+            </button>
             <a href="{{ url_for('social.feed') }}">&larr; Community feed</a>
             <form action="{{ url_for('auth.logout') }}" method="post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -31,7 +35,13 @@
 
     <header class="admin-mobile-header">
         <a class="brand" href="{{ url_for('godhood.dashboard') }}" aria-label="MadeBy creator dashboard"><span class="sr-only">MadeBy</span></a>
-        <button class="admin-menu-button" type="button" aria-expanded="false" aria-controls="admin-mobile-menu">Menu</button>
+        <div class="admin-mobile-actions">
+            <button class="admin-theme-toggle admin-theme-toggle-mobile" type="button" aria-pressed="false" aria-label="Switch to dark mode">
+                <span class="admin-theme-icon" aria-hidden="true">&#9790;</span>
+                <span class="sr-only admin-theme-label">Dark mode</span>
+            </button>
+            <button class="admin-menu-button" type="button" aria-expanded="false" aria-controls="admin-mobile-menu">Menu</button>
+        </div>
     </header>
     <nav class="admin-mobile-menu" id="admin-mobile-menu" aria-label="Creator dashboard mobile navigation">
         <a href="{{ url_for('godhood.dashboard') }}">Overview</a>

@@ -34,7 +34,7 @@
         <dl class="admin-user-data">
             <div><dt>Status</dt><dd>
                 {% if user.suspended_until and user.suspended_until > now %}
-                <span class="status-pill suspended">Suspended until {{ user.suspended_until.strftime("%b %d, %Y") }}</span>
+                <span class="status-pill suspended">Suspended until {{ user.suspended_until.strftime("%b %d, %Y at %H:%M UTC") }}</span>
                 {% elif user.is_online %}
                 <span class="status-pill online">Online</span>
                 {% else %}<span class="status-pill offline">Offline</span>{% endif %}
@@ -63,8 +63,15 @@
                 <summary>Suspend</summary>
                 <form action="{{ url_for('godhood.suspend_user', user_id=user.user_id) }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <label for="days-{{ user.user_id }}">Number of days</label>
-                    <input id="days-{{ user.user_id }}" name="days" type="number" min="1" max="365" value="7" required>
+                    <label for="duration-{{ user.user_id }}">Suspension duration</label>
+                    <div class="suspension-duration">
+                        <input id="duration-{{ user.user_id }}" name="duration" type="number" min="1" max="3650" value="7" required>
+                        <select name="unit" aria-label="Suspension time unit">
+                            <option value="hours">Hours</option>
+                            <option value="days" selected>Days</option>
+                            <option value="years">Years</option>
+                        </select>
+                    </div>
                     <label for="reason-{{ user.user_id }}">Reason</label>
                     <input id="reason-{{ user.user_id }}" name="reason" maxlength="500">
                     <button type="submit">Confirm suspension</button>

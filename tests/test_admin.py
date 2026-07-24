@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import pytest
+
 
 def admin_user():
     return {
@@ -121,9 +123,23 @@ def test_admin_users_page_shows_email_status_and_actions(client, monkeypatch):
     assert b"Protected hash" in response.data
     assert b"Send to notifications" in response.data
     assert b"Delete account" in response.data
+    assert b"Dark mode" in response.data
+    assert b"Hours" in response.data
+    assert b"Days" in response.data
+    assert b"Years" in response.data
 
 
-def test_admin_can_suspend_user(client, monkeypatch):
+@pytest.mark.parametrize(
+    ("duration", "unit", "expected_text"),
+    [
+        ("12", "hours", "12 hours"),
+        ("14", "days", "14 days"),
+        ("2", "years", "2 years"),
+    ],
+)
+def test_admin_can_suspend_user(
+    client, monkeypatch, duration, unit, expected_text
+):
     install_admin(monkeypatch)
     log_in_admin(client)
     monkeypatch.setattr(
@@ -149,9 +165,39 @@ def test_admin_can_suspend_user(client, monkeypatch):
 
     response = client.post(
         "/godhood/users/7/suspend",
-        data={"days": "14", "reason": "Repeated spam"},
+        data={
+            "duration": duration,
+            "unit": unit,
+            "reason": "Repeated spam",
+        },
     )
 
     assert response.status_code == 302
     assert suspended["user_id"] == 7
+    assert expected_text in suspended["details"]
     assert "Repeated spam" in suspended["details"]
+
+
+def test_admin_rejects_suspension_beyond_unit_limit(client, monkeypatch):
+    install_admin(monkeypatch)
+    log_in_admin(client)
+    monkeypatch.setattr(
+        "app.controllers.adminController.adminRepository.find_manageable_user",
+        lambda _user_id: {
+            "user_id": 7,
+            "username": "maya",
+            "email": "maya@example.com",
+            "role": "user",
+        },
+    )
+    monkeypatch.setattr(
+        "app.controllers.adminController.adminRepository.suspend_user",
+        lambda *_args: pytest.fail("Invalid suspension must not reach the database"),
+    )
+
+    response = client.post(
+        "/godhood/users/7/suspend",
+        data={"duration": "11", "unit": "years", "reason": "Repeated spam"},
+    )
+
+    assert response.status_code == 302

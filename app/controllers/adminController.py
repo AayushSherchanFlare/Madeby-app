@@ -11,6 +11,13 @@ from app.repository import adminRepository, userRepository
 from app.services.adminService import remove_post, remove_user_account
 
 
+SUSPENSION_LIMITS = {
+    "hours": 8760,
+    "days": 3650,
+    "years": 10,
+}
+
+
 def _current_admin():
     user = userRepository.find_by_id(session["user_id"])
     if not user or user["role"] != "god":
@@ -72,17 +79,31 @@ def suspend_user_action(user_id):
     admin = _current_admin()
     user = _manageable_user(user_id)
     form = SuspendUserForm()
-    if not form.validate_on_submit():
-        flash("Choose a suspension between 1 and 365 days.", "error")
+    if (
+        not form.validate_on_submit()
+        or form.duration.data > SUSPENSION_LIMITS[form.unit.data]
+    ):
+        flash(
+            "Choose 1–8,760 hours, 1–3,650 days, or 1–10 years.",
+            "error",
+        )
         return redirect(url_for("godhood.users"))
-    until = datetime.now(UTC).replace(tzinfo=None) + timedelta(days=form.days.data)
+    duration = form.duration.data
+    unit = form.unit.data
+    if unit == "hours":
+        delta = timedelta(hours=duration)
+    elif unit == "days":
+        delta = timedelta(days=duration)
+    else:
+        delta = timedelta(days=365 * duration)
+    until = datetime.now(UTC).replace(tzinfo=None) + delta
     reason = form.reason.data or "No reason supplied"
     details = (
-        f"Suspended @{user['username']} for {form.days.data} day(s). "
+        f"Suspended @{user['username']} for {duration} {unit}. "
         f"Reason: {reason}"
     )
     adminRepository.suspend_user(admin["user_id"], user_id, until, details)
-    flash(f"@{user['username']} is suspended for {form.days.data} day(s).", "success")
+    flash(f"@{user['username']} is suspended for {duration} {unit}.", "success")
     return redirect(url_for("godhood.users"))
 
 
