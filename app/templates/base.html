@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="MadeBy is a community for discovering and sharing creative work.">
     <title>{% block title %}MadeBy{% endblock %}</title>
     <link id="site-favicon" rel="icon" type="image/png"
@@ -11,6 +11,25 @@
           data-dark-href="{{ url_for('static', filename='images/logo/madeby-mark-dark.png') }}">
     <script>
         (() => {
+            const syncVisibleViewport = () => {
+                const widths = [
+                    window.visualViewport?.width,
+                    window.innerWidth,
+                    document.documentElement.clientWidth,
+                    window.outerWidth,
+                    window.screen?.width,
+                ].filter((width) => Number.isFinite(width) && width > 0);
+                document.documentElement.style.setProperty(
+                    "--madeby-visible-width",
+                    `${Math.round(Math.min(...widths))}px`
+                );
+            };
+
+            syncVisibleViewport();
+            window.addEventListener("pageshow", syncVisibleViewport);
+            window.addEventListener("resize", syncVisibleViewport);
+            window.visualViewport?.addEventListener("resize", syncVisibleViewport);
+
             try {
                 const savedTheme = localStorage.getItem("madeby-theme");
                 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";

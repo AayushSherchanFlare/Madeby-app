@@ -88,12 +88,12 @@ html[data-theme="dark"] .field-error { color: #ff8e8e; }
   width: 72px; aspect-ratio: 1; display: grid; place-items: center; margin-bottom: 35px;
   color: var(--accent); background: #fff; border-radius: 50%; font: 800 26px "Manrope", sans-serif;
 }
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-device-width: 900px) {
   .auth-shell { grid-template-columns: 1fr; }
   .auth-art { min-height: 400px; }
   .auth-panel { padding-block: 60px; }
 }
-@media (max-width: 620px) {
+@media (max-width: 620px), (max-device-width: 620px) {
   .auth-art { min-height: 330px; padding: 34px 24px; }
   .auth-art h1 { font-size: 49px; letter-spacing: -3px; }
   .auth-panel { padding: 48px 20px; }

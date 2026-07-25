@@ -47,7 +47,7 @@
 .join-section h2 { margin: 0; font: 800 clamp(48px, 8vw, 94px)/.92 "Manrope", sans-serif; letter-spacing: -5px; }
 .join-section p:not(.eyebrow) { margin: 24px 0; color: #e8e6ff; }
 
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-device-width: 900px) {
   .hero { grid-template-columns: 1fr; padding-top: 55px; }
   .hero-copy { max-width: 650px; }
   .hero-art { min-height: 470px; }
@@ -55,7 +55,7 @@
   .project-card:last-child { grid-column: span 2; width: calc(50% - 11px); }
   .creator-grid { grid-template-columns: 1fr; }
 }
-@media (max-width: 600px) {
+@media (max-width: 600px), (max-device-width: 600px) {
   .hero { min-height: auto; gap: 45px; padding-bottom: 55px; }
   .hero h1 { font-size: 56px; letter-spacing: -4px; }
   .hero-actions { align-items: stretch; flex-direction: column; }

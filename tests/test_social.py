@@ -27,19 +27,24 @@ def log_in(client):
 
 
 def test_dashboard_mobile_layout_cannot_retain_desktop_sidebar_column():
-    css = (
-        Path(__file__).resolve().parents[1]
-        / "app"
-        / "static"
-        / "css"
-        / "dashboard.css"
-    ).read_text(encoding="utf-8")
+    project_root = Path(__file__).resolve().parents[1]
+    css = (project_root / "app" / "static" / "css" / "dashboard.css").read_text(
+        encoding="utf-8"
+    )
+    base_template = (project_root / "app" / "templates" / "base.html").read_text(
+        encoding="utf-8"
+    )
 
-    assert "@media (max-width: 1040px) {" in css
+    assert "@media (max-width: 1040px), (max-device-width: 1040px) {" in css
     assert '@media (max-width: 1040px), (hover: none), (pointer: coarse)' not in css
     assert "grid-template-columns: minmax(0, 1fr);" in css
+    assert "var(--madeby-visible-width, 100vw)" in css
     assert ".dashboard-body {\n  min-height: 100vh;\n  overflow-x: clip;" in css
     assert ".profile-identity { min-width: 0;" in css
+    assert "viewport-fit=cover" in base_template
+    assert "window.visualViewport?.width" in base_template
+    assert "window.screen?.width" in base_template
+    assert 'window.addEventListener("pageshow", syncVisibleViewport)' in base_template
 
 
 def install_user(monkeypatch):

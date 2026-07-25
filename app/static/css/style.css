@@ -76,7 +76,15 @@ button.button { cursor: pointer; }
 .error-page p:not(.error-code) { color: var(--muted); font-size: 18px; }
 .error-page .button { margin-top: 20px; }
 
-@media (max-width: 760px) {
+@media (max-width: 1040px), (max-device-width: 1040px) {
+  body {
+    width: min(100%, var(--madeby-visible-width, 100vw));
+    max-width: 100%;
+    overflow-x: clip;
+  }
+}
+
+@media (max-width: 760px), (max-device-width: 760px) {
   .container { width: min(100% - 28px, 1180px); }
   .nav > .brand { width: 130px; height: 32px; }
   .menu-button { display: block; }
