@@ -19,9 +19,20 @@
                     window.outerWidth,
                     window.screen?.width,
                 ].filter((width) => Number.isFinite(width) && width > 0);
+                const heights = [
+                    window.visualViewport?.height,
+                    window.innerHeight,
+                    document.documentElement.clientHeight,
+                    window.outerHeight,
+                    window.screen?.height,
+                ].filter((height) => Number.isFinite(height) && height > 0);
                 document.documentElement.style.setProperty(
                     "--madeby-visible-width",
                     `${Math.round(Math.min(...widths))}px`
+                );
+                document.documentElement.style.setProperty(
+                    "--madeby-visible-height",
+                    `${Math.round(Math.min(...heights))}px`
                 );
             };
 

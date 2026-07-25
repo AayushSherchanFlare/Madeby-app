@@ -43,8 +43,11 @@ def test_dashboard_mobile_layout_cannot_retain_desktop_sidebar_column():
     assert ".profile-identity { min-width: 0;" in css
     assert "viewport-fit=cover" in base_template
     assert "window.visualViewport?.width" in base_template
+    assert "window.visualViewport?.height" in base_template
     assert "window.screen?.width" in base_template
+    assert "--madeby-visible-height" in base_template
     assert 'window.addEventListener("pageshow", syncVisibleViewport)' in base_template
+    assert "top: calc(var(--madeby-visible-height, 100dvh) - 66px);" in css
 
 
 def install_user(monkeypatch):
