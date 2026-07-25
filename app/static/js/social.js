@@ -57,42 +57,6 @@ document.querySelectorAll("textarea[data-post-preview-text]").forEach((textarea)
   updatePreviewText();
 });
 
-const dashboardMenuButton = document.querySelector(".dashboard-menu-button");
-const dashboardMobileMenu = document.querySelector(".dashboard-mobile-menu");
-
-if (dashboardMenuButton && dashboardMobileMenu) {
-  const menuLabel = dashboardMenuButton.querySelector(".sr-only");
-
-  function setDashboardMenuOpen(isOpen) {
-    dashboardMenuButton.setAttribute("aria-expanded", String(isOpen));
-    dashboardMobileMenu.classList.toggle("is-open", isOpen);
-    document.body.classList.toggle("dashboard-menu-open", isOpen);
-    if (menuLabel) {
-      menuLabel.textContent = isOpen ? "Close navigation menu" : "Open navigation menu";
-    }
-  }
-
-  dashboardMenuButton.addEventListener("click", () => {
-    setDashboardMenuOpen(
-      dashboardMenuButton.getAttribute("aria-expanded") !== "true"
-    );
-  });
-
-  dashboardMobileMenu.addEventListener("click", (event) => {
-    if (event.target.closest("a")) setDashboardMenuOpen(false);
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (
-      event.key === "Escape" &&
-      dashboardMenuButton.getAttribute("aria-expanded") === "true"
-    ) {
-      setDashboardMenuOpen(false);
-      dashboardMenuButton.focus();
-    }
-  });
-}
-
 function closePostMenus(exceptButton = null) {
   document.querySelectorAll(".post-menu[aria-expanded='true']").forEach((button) => {
     if (button === exceptButton) return;

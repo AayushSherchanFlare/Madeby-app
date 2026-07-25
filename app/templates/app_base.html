@@ -43,27 +43,12 @@
         <a class="brand" href="{{ url_for('social.feed') }}" aria-label="MadeBy feed"><span class="sr-only">MadeBy</span></a>
         <div class="dashboard-mobile-actions">
             <a class="mobile-add" href="{{ url_for('social.create_post') }}">+ Post</a>
-            <button class="dashboard-menu-button" type="button" aria-expanded="false" aria-controls="dashboard-mobile-menu">
-                <span class="sr-only">Open navigation menu</span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </button>
+            <a class="dashboard-settings-link {{ 'is-active' if request.endpoint == 'social.settings' }}"
+               href="{{ url_for('social.settings') }}" aria-label="Settings">
+                <span aria-hidden="true">&#9881;</span>
+            </a>
         </div>
     </header>
-
-    <nav class="dashboard-mobile-menu" id="dashboard-mobile-menu" aria-label="Mobile menu">
-        <a class="{{ 'is-active' if request.endpoint == 'social.feed' }}" href="{{ url_for('social.feed') }}">News feed</a>
-        <a class="{{ 'is-active' if request.endpoint == 'social.messages' }}" href="{{ url_for('social.messages') }}">Messages <small>Coming soon</small></a>
-        <a class="{{ 'is-active' if request.endpoint == 'social.notifications' }}" href="{{ url_for('social.notifications') }}">
-            Notifications
-            {% if current_user.unread_notification_count|default(0) %}<small class="nav-notification-badge">{{ current_user.unread_notification_count }} new</small>{% endif %}
-        </a>
-        <a class="{{ 'is-active' if request.endpoint in ('social.profile', 'social.user_profile', 'social.followers', 'social.following') }}" href="{{ url_for('social.profile') }}">Profile</a>
-        <a class="{{ 'is-active' if request.endpoint == 'social.friends' }}" href="{{ url_for('social.friends') }}">Friends</a>
-        <a class="{{ 'is-active' if request.endpoint == 'social.settings' }}" href="{{ url_for('social.settings') }}">Settings</a>
-        {% if current_user.role == 'god' %}<a href="{{ url_for('godhood.dashboard') }}">Creator dashboard</a>{% endif %}
-    </nav>
 
     {% include "partials/flash_messages.html" %}
     <main id="main-content" class="dashboard-main">
@@ -72,7 +57,13 @@
 
     <nav class="dashboard-mobile-nav" aria-label="Mobile navigation">
         <a class="{{ 'is-active' if request.endpoint == 'social.feed' }}" href="{{ url_for('social.feed') }}"><span aria-hidden="true">&#8962;</span><small>Feed</small></a>
-        <a class="{{ 'is-active' if request.endpoint == 'social.friends' }}" href="{{ url_for('social.friends') }}"><span aria-hidden="true">&#9823;</span><small>Friends</small></a>
+        <a class="{{ 'is-active' if request.endpoint == 'social.notifications' }}" href="{{ url_for('social.notifications') }}">
+            <span class="mobile-nav-icon" aria-hidden="true">
+                &#128276;
+                {% if current_user.unread_notification_count|default(0) %}<b>{{ current_user.unread_notification_count }}</b>{% endif %}
+            </span>
+            <small>Notifications</small>
+        </a>
         <a class="mobile-nav-create {{ 'is-active' if request.endpoint == 'social.create_post' }}" href="{{ url_for('social.create_post') }}" aria-label="Add post"><span aria-hidden="true">+</span></a>
         <a class="{{ 'is-active' if request.endpoint == 'social.messages' }}" href="{{ url_for('social.messages') }}"><span aria-hidden="true">&#9993;</span><small>Messages</small></a>
         <a class="{{ 'is-active' if request.endpoint in ('social.profile', 'social.user_profile', 'social.followers', 'social.following') }}" href="{{ url_for('social.profile') }}"><span aria-hidden="true">&#9679;</span><small>Profile</small></a>

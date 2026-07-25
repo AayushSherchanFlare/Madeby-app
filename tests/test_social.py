@@ -110,9 +110,13 @@ def test_feed_renders_posts_and_discovery(client, monkeypatch):
     assert b"dashboard.css" in response.data
     assert b"dashboard.css?v=" in response.data
     assert response.headers["Cache-Control"] == "no-store"
-    assert b'id="dashboard-mobile-menu"' in response.data
-    assert b'class="dashboard-menu-button"' in response.data
+    assert b'id="dashboard-mobile-menu"' not in response.data
+    assert b'class="dashboard-menu-button"' not in response.data
+    assert b"dashboard-settings-link" in response.data
+    assert b'aria-label="Settings"' in response.data
     assert b"<small>Feed</small>" in response.data
+    assert b"<small>Notifications</small>" in response.data
+    assert b"<small>Friends</small>" not in response.data
     assert b"Copy post link" in response.data
     assert b"Save post" in response.data
     assert b"Notifications" in response.data
