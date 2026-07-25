@@ -17,7 +17,10 @@
             <p class="eyebrow">Create an account</p>
             <h1 id="register-title">Join MadeBy</h1>
             <p class="auth-lead">Already a member? <a href="{{ url_for('auth.login') }}">Log in</a></p>
-            <a class="google-auth-button" href="{{ url_for('auth.google') }}"><span aria-hidden="true">G</span> Continue with Google</a>
+            <a class="google-auth-button" href="{{ url_for('auth.google') }}" data-google-auth>
+                <span class="google-auth-mark" aria-hidden="true">G</span>
+                <span class="google-auth-label">Continue with Google</span>
+            </a>
             <div class="auth-divider"><span>or register with email</span></div>
             <form method="post" novalidate>
                 {{ form.hidden_tag() }}

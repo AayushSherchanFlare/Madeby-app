@@ -136,6 +136,31 @@ def test_google_login_without_credentials_returns_to_login(client):
     assert b"Google login has not been configured yet." in page.data
 
 
+def test_google_oauth_uses_direct_endpoints_without_discovery(monkeypatch):
+    from app import create_app
+    from config import TestConfig
+
+    class GoogleTestConfig(TestConfig):
+        GOOGLE_CLIENT_ID = "test-client"
+        GOOGLE_CLIENT_SECRET = "test-secret"
+
+    registered = {}
+    monkeypatch.setattr(
+        "app.oauth.register",
+        lambda **settings: registered.update(settings),
+    )
+
+    create_app(GoogleTestConfig)
+
+    assert registered["authorize_url"] == (
+        "https://accounts.google.com/o/oauth2/v2/auth"
+    )
+    assert registered["access_token_url"] == "https://oauth2.googleapis.com/token"
+    assert registered["jwks_uri"] == "https://www.googleapis.com/oauth2/v3/certs"
+    assert "server_metadata_url" not in registered
+    assert registered["client_kwargs"]["default_timeout"] == 15
+
+
 def test_login_rejects_invalid_credentials(client, monkeypatch):
     monkeypatch.setattr(
         "app.controllers.authController.authenticate_user",

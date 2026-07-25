@@ -60,6 +60,27 @@ window.addEventListener("storage", (event) => {
   }
 });
 
+document.querySelectorAll("[data-google-auth]").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    link.classList.add("is-loading");
+    link.setAttribute("aria-disabled", "true");
+    const label = link.querySelector(".google-auth-label");
+    if (label) label.textContent = "Connecting to Google…";
+    requestAnimationFrame(() => window.location.assign(link.href));
+  });
+});
+
 if (menuButton && navigation) {
   const menuLabel = menuButton.querySelector(".sr-only");
 

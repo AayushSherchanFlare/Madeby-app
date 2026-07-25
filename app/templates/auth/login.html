@@ -17,7 +17,10 @@
             <p class="eyebrow">Member access</p>
             <h1 id="login-title">Log in</h1>
             <p class="auth-lead">New here? <a href="{{ url_for('auth.register') }}">Create an account</a></p>
-            <a class="google-auth-button" href="{{ url_for('auth.google') }}"><span aria-hidden="true">G</span> Continue with Google</a>
+            <a class="google-auth-button" href="{{ url_for('auth.google') }}" data-google-auth>
+                <span class="google-auth-mark" aria-hidden="true">G</span>
+                <span class="google-auth-label">Continue with Google</span>
+            </a>
             <div class="auth-divider"><span>or use your email</span></div>
             <form method="post" novalidate>
                 {{ form.hidden_tag() }}

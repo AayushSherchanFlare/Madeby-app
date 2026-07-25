@@ -31,8 +31,18 @@ def create_app(config_class=Config):
             name="google",
             client_id=app.config["GOOGLE_CLIENT_ID"],
             client_secret=app.config["GOOGLE_CLIENT_SECRET"],
-            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-            client_kwargs={"scope": "openid email profile"},
+            authorize_url="https://accounts.google.com/o/oauth2/v2/auth",
+            access_token_url="https://oauth2.googleapis.com/token",
+            api_base_url="https://openidconnect.googleapis.com/",
+            issuer="https://accounts.google.com",
+            jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
+            userinfo_endpoint="https://openidconnect.googleapis.com/v1/userinfo",
+            id_token_signing_alg_values_supported=["RS256"],
+            client_kwargs={
+                "scope": "openid email profile",
+                "token_endpoint_auth_method": "client_secret_post",
+                "default_timeout": 15,
+            },
         )
     _create_upload_directories(app)
     _register_blueprints(app)
