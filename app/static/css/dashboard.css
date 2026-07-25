@@ -60,6 +60,17 @@ html[data-theme="light"] .dashboard-sidebar {
   font-size: 14px;
 }
 .dashboard-nav a > span { width: 19px; color: var(--ink); text-align: center; font-size: 18px; }
+.dashboard-notification-icon { display: grid; place-items: center; }
+.navigation-bell {
+  width: 18px;
+  height: 18px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .dashboard-nav a small {
   margin-left: auto;
   padding: 2px 7px;
@@ -665,26 +676,24 @@ textarea.form-control { resize: vertical; }
   }
   .dashboard-mobile-nav a {
     height: 100%;
-    display: grid;
-    place-items: center;
-    align-content: center;
-    gap: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 3px;
     color: var(--muted);
     font-size: 18px;
   }
-  .dashboard-mobile-nav a small { font-size: 9px; font-weight: 800; }
+  .dashboard-mobile-nav a:not(.mobile-nav-create) > span {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+  }
+  .dashboard-mobile-nav a small { font-size: 9px; font-weight: 800; line-height: 1; white-space: nowrap; }
   .dashboard-mobile-nav a.is-active { color: var(--accent-readable); }
   .mobile-nav-icon { position: relative; line-height: 1; }
-  .mobile-nav-bell {
-    width: 18px;
-    height: 18px;
-    display: block;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
   .mobile-nav-icon b {
     position: absolute;
     top: -7px;
