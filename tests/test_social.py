@@ -3,6 +3,25 @@ from datetime import datetime
 from pathlib import Path
 
 
+def test_feed_ranks_followed_and_discovery_posts_before_own_posts():
+    repository = (
+        Path(__file__).resolve().parents[1]
+        / "app"
+        / "repository"
+        / "socialRepository.py"
+    ).read_text(encoding="utf-8")
+
+    ranking = re.search(
+        r"ORDER BY\s+CASE\s+WHEN p\.user_id = %s THEN 2"
+        r".*?f\.followed_user_id = p\.user_id\s+\) THEN 0\s+ELSE 1"
+        r"\s+END,\s+p\.created_at DESC",
+        repository,
+        re.DOTALL,
+    )
+
+    assert ranking is not None
+
+
 def active_user():
     return {
         "user_id": 7,

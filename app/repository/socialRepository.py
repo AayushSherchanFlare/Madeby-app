@@ -36,13 +36,13 @@ def list_feed(user_id, limit=20, offset=0, category_id=None):
               AND (%s IS NULL OR p.category_id = %s)
             ORDER BY
                 CASE
-                    WHEN p.user_id = %s THEN 0
+                    WHEN p.user_id = %s THEN 2
                     WHEN EXISTS (
                         SELECT 1 FROM followers f
                         WHERE f.follower_user_id = %s
                           AND f.followed_user_id = p.user_id
-                    ) THEN 1
-                    ELSE 2
+                    ) THEN 0
+                    ELSE 1
                 END,
                 p.created_at DESC
             LIMIT %s OFFSET %s
