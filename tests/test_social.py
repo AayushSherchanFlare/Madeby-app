@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from pathlib import Path
 
 
 def active_user():
@@ -23,6 +24,22 @@ def log_in(client):
     with client.session_transaction() as session:
         session["user_id"] = 7
         session["role"] = "user"
+
+
+def test_dashboard_mobile_layout_cannot_retain_desktop_sidebar_column():
+    css = (
+        Path(__file__).resolve().parents[1]
+        / "app"
+        / "static"
+        / "css"
+        / "dashboard.css"
+    ).read_text(encoding="utf-8")
+
+    assert "@media (max-width: 1040px) {" in css
+    assert '@media (max-width: 1040px), (hover: none), (pointer: coarse)' not in css
+    assert "grid-template-columns: minmax(0, 1fr);" in css
+    assert ".dashboard-body {\n  min-height: 100vh;\n  overflow-x: clip;" in css
+    assert ".profile-identity { min-width: 0;" in css
 
 
 def install_user(monkeypatch):
