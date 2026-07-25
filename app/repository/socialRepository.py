@@ -132,19 +132,6 @@ def suggested_users(user_id, limit=4):
         return cursor.fetchall()
 
 
-def unread_notification_count(user_id):
-    with database_cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT COUNT(*) AS unread_count
-            FROM notifications
-            WHERE recipient_user_id = %s AND is_read = FALSE
-            """,
-            (user_id,),
-        )
-        return cursor.fetchone()["unread_count"]
-
-
 def notifications_for_user(user_id, limit=50):
     with database_cursor() as cursor:
         cursor.execute(
@@ -212,20 +199,6 @@ def create_post(user_id, content, image_path, category_id):
             (user_id, category_id or None, content or None, image_path),
         )
         return cursor.lastrowid
-
-
-def find_post(project_id):
-    with database_cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT project_id, user_id, status
-            FROM projects
-            WHERE project_id = %s
-            LIMIT 1
-            """,
-            (project_id,),
-        )
-        return cursor.fetchone()
 
 
 def find_post_for_management(project_id, user_id):

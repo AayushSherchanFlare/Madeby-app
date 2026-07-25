@@ -27,7 +27,7 @@ def log_in(client):
 
 def install_user(monkeypatch):
     monkeypatch.setattr(
-        "app.controllers.socialController.userRepository.find_by_id",
+        "app.repository.userRepository.find_by_id",
         lambda _user_id: active_user(),
     )
 

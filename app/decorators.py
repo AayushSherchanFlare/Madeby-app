@@ -1,9 +1,12 @@
 from datetime import UTC, datetime
 from functools import wraps
 
-from flask import abort, current_app, flash, redirect, request, session, url_for
+from flask import abort, current_app, flash, g, redirect, request, session, url_for
 
 from app.repository import userRepository
+
+
+LAST_SEEN_TOUCH_INTERVAL_SECONDS = 60
 
 
 def login_required(view):
@@ -27,9 +30,15 @@ def login_required(view):
                 "error",
             )
             return redirect(url_for("auth.login"))
-        session["role"] = user["role"]
+        if session.get("role") != user["role"]:
+            session["role"] = user["role"]
+        g.current_user = user
         if not current_app.config["TESTING"]:
-            userRepository.touch_last_seen(user_id)
+            now_timestamp = int(datetime.now(UTC).timestamp())
+            last_touch = session.get("_last_seen_touch", 0)
+            if now_timestamp - last_touch >= LAST_SEEN_TOUCH_INTERVAL_SECONDS:
+                userRepository.touch_last_seen(user_id)
+                session["_last_seen_touch"] = now_timestamp
         return view(*args, **kwargs)
 
     return wrapped_view
@@ -39,7 +48,7 @@ def god_required(view):
     @wraps(view)
     @login_required
     def wrapped_view(*args, **kwargs):
-        if session.get("role") != "god":
+        if g.current_user["role"] != "god":
             abort(403)
         return view(*args, **kwargs)
 

@@ -2,6 +2,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    g,
     jsonify,
     redirect,
     render_template,
@@ -27,14 +28,6 @@ from app.services.socialService import (
 )
 
 
-def _current_user():
-    user = userRepository.find_by_id(session["user_id"])
-    if not user or user["account_status"] != "active":
-        session.clear()
-        return None
-    return user
-
-
 def _post_form():
     form = PostForm()
     categories = socialRepository.list_categories()
@@ -42,7 +35,7 @@ def _post_form():
         (category["category_id"], category["category_name"])
         for category in categories
     ]
-    return form, categories
+    return form
 
 
 def _return_path(default_endpoint="social.feed"):
@@ -62,10 +55,7 @@ def _wants_json():
 
 
 def feed_page():
-    current_user = _current_user()
-    if not current_user:
-        flash("Please log in again.", "info")
-        return redirect(url_for("auth.login"))
+    current_user = g.current_user
 
     category_id = request.args.get("category", type=int)
     posts = socialRepository.list_feed(
@@ -78,7 +68,7 @@ def feed_page():
     for post in posts:
         post["comments"] = comments.get(post["project_id"], [])
 
-    _, categories = _post_form()
+    categories = socialRepository.list_categories()
     return render_template(
         "social/feed.html",
         current_user=current_user,
@@ -91,10 +81,8 @@ def feed_page():
 
 
 def create_post_page():
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
-    form, categories = _post_form()
+    current_user = g.current_user
+    form = _post_form()
     if form.validate_on_submit():
         try:
             publish_post(
@@ -113,14 +101,11 @@ def create_post_page():
         "social/create_post.html",
         current_user=current_user,
         form=form,
-        categories=categories,
     )
 
 
 def post_detail_page(project_id):
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
+    current_user = g.current_user
     post = socialRepository.find_visible_post(project_id, current_user["user_id"])
     if not post:
         abort(404)
@@ -134,16 +119,14 @@ def post_detail_page(project_id):
 
 
 def edit_post_page(project_id):
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
+    current_user = g.current_user
     post = socialRepository.find_post_for_management(
         project_id, current_user["user_id"]
     )
     if not post:
         abort(404)
 
-    form, categories = _post_form()
+    form = _post_form()
     form.existing_image = bool(post["cover_image"])
     if request.method == "GET":
         form.content.data = post["description"]
@@ -168,7 +151,6 @@ def edit_post_page(project_id):
         current_user=current_user,
         post=post,
         form=form,
-        categories=categories,
     )
 
 
@@ -238,7 +220,7 @@ def comment_on_post(project_id):
             session["user_id"], project_id, form.comment_text.data
         )
         if _wants_json():
-            current_user = _current_user()
+            current_user = g.current_user
             counts = socialRepository.post_engagement_counts(project_id)
             return jsonify(
                 {
@@ -283,9 +265,7 @@ def follow_user(target_user_id):
 
 
 def profile_page(username=None):
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
+    current_user = g.current_user
     username = username or current_user["username"]
     profile = socialRepository.find_profile_by_username(
         username, current_user["user_id"]
@@ -304,9 +284,7 @@ def profile_page(username=None):
 
 
 def profile_connections_page(username, relationship):
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
+    current_user = g.current_user
     profile = socialRepository.find_profile_by_username(
         username, current_user["user_id"]
     )
@@ -335,9 +313,7 @@ def profile_connections_page(username, relationship):
 
 
 def notifications_page():
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
+    current_user = g.current_user
     notifications = socialRepository.notifications_for_user(current_user["user_id"])
     socialRepository.mark_notifications_read(current_user["user_id"])
     current_user["unread_notification_count"] = 0
@@ -349,9 +325,7 @@ def notifications_page():
 
 
 def friends_page():
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
+    current_user = g.current_user
     return render_template(
         "social/friends.html",
         current_user=current_user,
@@ -360,9 +334,7 @@ def friends_page():
 
 
 def messages_page():
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
+    current_user = g.current_user
     return render_template("social/messages.html", current_user=current_user)
 
 
@@ -382,16 +354,11 @@ def _render_settings(current_user, profile_form=None, password_form=None):
 
 
 def settings_page():
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
-    return _render_settings(current_user)
+    return _render_settings(g.current_user)
 
 
 def update_profile():
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
+    current_user = g.current_user
     form = ProfileSettingsForm(prefix="profile")
     if not form.validate_on_submit():
         return _render_settings(current_user, profile_form=form)
@@ -420,9 +387,7 @@ def update_profile():
 
 
 def update_password():
-    current_user = _current_user()
-    if not current_user:
-        return redirect(url_for("auth.login"))
+    current_user = g.current_user
     form = PasswordChangeForm(prefix="password")
     if not form.validate_on_submit():
         return _render_settings(current_user, password_form=form)

@@ -18,8 +18,8 @@ This repository currently contains **Phase 3: Social feed and profiles**. It kee
 - Reusable, transaction-aware MySQL connection helper
 - CSRF protection for state-changing forms
 - Secure session defaults and a 20 MB request limit
-- Complete version-one MySQL schema, constraints, indexes, and category seed data
-- Controller, repository, route, service, and form layers ready for later phases
+- Complete MySQL schema, constraints, indexes, migrations, and category seed data
+- Focused controller, repository, route, service, and form layers
 - Account registration with server-side validation and duplicate protection
 - Six-digit email verification with expiration, attempt limits, and resend cooldown
 - Google OpenID Connect login with verified-email account linking
@@ -28,7 +28,7 @@ This repository currently contains **Phase 3: Social feed and profiles**. It kee
 - Safe post-login redirects and account-status enforcement
 - CSRF-protected authentication forms and logout action
 - Signed-in feed combining the member's work, followed creators, and community posts
-- Text-or-photo post composer with category selection and image-signature validation
+- Text-or-photo post composer with live preview, category selection, image-signature validation, and center-cropped 1:1, 9:16, or 16:9 photos
 - Owner-only post editing, deletion, and private profile visibility controls
 - Likes, comments, saved posts, shareable post links, persistent follow suggestions, and category feed filters
 - Notification inbox and unread count for likes, comments, and new followers
@@ -38,8 +38,8 @@ This repository currently contains **Phase 3: Social feed and profiles**. It kee
 - Profile editing and secure password changes
 - Creator-only administration dashboard with user and feed search
 - Timed account suspension, warning notifications, and permanent moderation actions
-- Online/offline activity summaries and a permanent administrator audit trail
-- One-way password storage that prevents administrators from reading member passwords
+- Online/offline activity summaries and a permanent creator audit trail
+- One-way password storage that prevents anyone from reading member passwords
 - Responsive desktop/mobile dashboard derived from the supplied UI reference
 - Automated authentication, social, database-helper, route, and schema tests
 
@@ -168,7 +168,7 @@ Visit `http://127.0.0.1:5000/`. The landing page does not query MySQL, so it can
 - [ ] `/` returns the responsive MadeBy landing page.
 - [ ] The mobile menu opens at a narrow browser width and can be used by keyboard.
 - [ ] A missing URL such as `/does-not-exist` displays the custom 404 page.
-- [ ] `SHOW TABLES;` in MySQL lists all twelve version-one tables.
+- [ ] `SHOW TABLES;` in MySQL lists all thirteen tables.
 - [ ] `SELECT * FROM categories;` returns the nine seeded creative categories.
 - [ ] A new account can receive a verification code, verify, and log in.
 - [ ] “Continue with Google” creates or safely links a verified account.
@@ -213,8 +213,8 @@ The automated tests use isolated fakes and do not require a running MySQL server
 
 ## Known limitations
 
-Featured landing-page content is still presentation data. Messaging is currently a placeholder. Account recovery, moderation, and the admin panel are not yet implemented.
+Featured landing-page content is presentation data. Messaging and account recovery are not yet implemented.
 
 ## Planned improvements
 
-The next phase can add messaging, moderation, and administration. Longer-term possibilities include cloud storage, advanced analytics, and additional OAuth providers.
+The next phase can add messaging and account recovery. Longer-term possibilities include cloud storage, advanced analytics, and additional OAuth providers.

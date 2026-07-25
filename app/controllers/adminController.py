@@ -1,13 +1,13 @@
 from datetime import UTC, datetime, timedelta
 
-from flask import abort, flash, redirect, render_template, request, session, url_for
+from flask import abort, flash, g, redirect, render_template, request, url_for
 
 from app.forms.adminForms import (
     AdminActionForm,
     SuspendUserForm,
     WarningMessageForm,
 )
-from app.repository import adminRepository, userRepository
+from app.repository import adminRepository
 from app.services.adminService import remove_post, remove_user_account
 
 
@@ -18,13 +18,6 @@ SUSPENSION_LIMITS = {
 }
 
 
-def _current_admin():
-    user = userRepository.find_by_id(session["user_id"])
-    if not user or user["role"] != "god":
-        abort(403)
-    return user
-
-
 def _manageable_user(user_id):
     user = adminRepository.find_manageable_user(user_id)
     if not user or user["role"] != "user":
@@ -33,7 +26,7 @@ def _manageable_user(user_id):
 
 
 def dashboard_page():
-    admin = _current_admin()
+    admin = g.current_user
     return render_template(
         "admin/dashboard.html",
         current_admin=admin,
@@ -44,7 +37,7 @@ def dashboard_page():
 
 
 def users_page():
-    admin = _current_admin()
+    admin = g.current_user
     search = (request.args.get("q") or "").strip()[:120]
     return render_template(
         "admin/users.html",
@@ -57,7 +50,7 @@ def users_page():
 
 
 def feed_page():
-    admin = _current_admin()
+    admin = g.current_user
     search = (request.args.get("q") or "").strip()[:120]
     return render_template(
         "admin/feed.html",
@@ -70,13 +63,13 @@ def feed_page():
 def audit_page():
     return render_template(
         "admin/audit.html",
-        current_admin=_current_admin(),
+        current_admin=g.current_user,
         audit_logs=adminRepository.recent_audit_logs(limit=100),
     )
 
 
 def suspend_user_action(user_id):
-    admin = _current_admin()
+    admin = g.current_user
     user = _manageable_user(user_id)
     form = SuspendUserForm()
     if (
@@ -108,7 +101,7 @@ def suspend_user_action(user_id):
 
 
 def unsuspend_user_action(user_id):
-    admin = _current_admin()
+    admin = g.current_user
     user = _manageable_user(user_id)
     form = AdminActionForm()
     if not form.validate_on_submit():
@@ -123,7 +116,7 @@ def unsuspend_user_action(user_id):
 
 
 def warning_action(user_id):
-    admin = _current_admin()
+    admin = g.current_user
     user = _manageable_user(user_id)
     form = WarningMessageForm()
     if not form.validate_on_submit():
@@ -135,7 +128,7 @@ def warning_action(user_id):
 
 
 def delete_user_action(user_id):
-    admin = _current_admin()
+    admin = g.current_user
     user = _manageable_user(user_id)
     form = AdminActionForm()
     if not form.validate_on_submit():
@@ -146,7 +139,7 @@ def delete_user_action(user_id):
 
 
 def delete_post_action(project_id):
-    admin = _current_admin()
+    admin = g.current_user
     form = AdminActionForm()
     if not form.validate_on_submit():
         abort(400)

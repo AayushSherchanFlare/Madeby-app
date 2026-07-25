@@ -262,16 +262,22 @@ def test_account_requires_login(client):
 
 
 def test_account_renders_for_active_user(client, monkeypatch):
-    monkeypatch.setattr(
-        "app.controllers.authController.userRepository.find_by_id",
-        lambda _user_id: {
+    lookups = []
+
+    def find_user(user_id):
+        lookups.append(user_id)
+        return {
             "user_id": 7,
             "full_name": "Sofia Chen",
             "username": "sofia",
             "email": "sofia@example.com",
             "role": "user",
             "account_status": "active",
-        },
+        }
+
+    monkeypatch.setattr(
+        "app.repository.userRepository.find_by_id",
+        find_user,
     )
     with client.session_transaction() as session:
         session["user_id"] = 7
@@ -282,6 +288,35 @@ def test_account_renders_for_active_user(client, monkeypatch):
     assert response.status_code == 200
     assert b"Hello, Sofia." in response.data
     assert b"@sofia" in response.data
+    assert lookups == [7]
+
+
+def test_last_seen_write_is_throttled_per_session(client, monkeypatch):
+    user = {
+        "user_id": 7,
+        "full_name": "Sofia Chen",
+        "username": "sofia",
+        "email": "sofia@example.com",
+        "role": "user",
+        "account_status": "active",
+    }
+    touches = []
+    monkeypatch.setattr(
+        "app.repository.userRepository.find_by_id",
+        lambda _user_id: user,
+    )
+    monkeypatch.setattr(
+        "app.repository.userRepository.touch_last_seen",
+        lambda user_id: touches.append(user_id),
+    )
+    client.application.config["TESTING"] = False
+    with client.session_transaction() as session:
+        session["user_id"] = 7
+        session["role"] = "user"
+
+    assert client.get("/account").status_code == 200
+    assert client.get("/account").status_code == 200
+    assert touches == [7]
 
 
 def test_logout_clears_session(client):

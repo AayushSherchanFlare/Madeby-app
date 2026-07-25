@@ -5,6 +5,7 @@ from authlib.integrations.base_client.errors import OAuthError
 from flask import (
     current_app,
     flash,
+    g,
     redirect,
     render_template,
     request,
@@ -20,7 +21,6 @@ from app.forms.authForms import (
     ResendCodeForm,
     VerifyEmailForm,
 )
-from app.repository import userRepository
 from app.services.authService import (
     GoogleAuthenticationError,
     ResendTooSoon,
@@ -202,9 +202,4 @@ def logout_user():
 
 
 def account_page():
-    user = userRepository.find_by_id(session["user_id"])
-    if not user or user["account_status"] != "active":
-        session.clear()
-        flash("Your session is no longer available. Please log in again.", "info")
-        return redirect(url_for("auth.login"))
-    return render_template("auth/account.html", user=user)
+    return render_template("auth/account.html", user=g.current_user)
