@@ -213,6 +213,13 @@ python -m pytest
 
 The automated tests use isolated fakes and do not require a running MySQL server.
 
+## Project documentation
+
+The formatted development report is available at
+`documentation/MadeBy_Project_Documentation.docx`. It includes labelled spaces
+for landing-page, feed, post, profile, creator-dashboard, Git, and test-result
+screenshots.
+
 ## Known limitations
 
 Featured landing-page content is presentation data. Direct messaging is not yet implemented.
