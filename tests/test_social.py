@@ -114,8 +114,11 @@ def test_feed_renders_posts_and_discovery(client, monkeypatch):
     assert b'class="dashboard-menu-button"' not in response.data
     assert b"dashboard-settings-link" in response.data
     assert b'aria-label="Settings"' in response.data
+    assert b'class="mobile-add"' not in response.data
+    assert b">+ Post</a>" not in response.data
     assert b"<small>Feed</small>" in response.data
     assert b"<small>Notifications</small>" in response.data
+    assert b'class="mobile-nav-bell"' in response.data
     assert b"<small>Friends</small>" not in response.data
     assert b"Copy post link" in response.data
     assert b"Save post" in response.data

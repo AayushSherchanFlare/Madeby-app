@@ -42,7 +42,6 @@
     <header class="dashboard-mobile-header">
         <a class="brand" href="{{ url_for('social.feed') }}" aria-label="MadeBy feed"><span class="sr-only">MadeBy</span></a>
         <div class="dashboard-mobile-actions">
-            <a class="mobile-add" href="{{ url_for('social.create_post') }}">+ Post</a>
             <a class="dashboard-settings-link {{ 'is-active' if request.endpoint == 'social.settings' }}"
                href="{{ url_for('social.settings') }}" aria-label="Settings">
                 <span aria-hidden="true">&#9881;</span>
@@ -59,7 +58,10 @@
         <a class="{{ 'is-active' if request.endpoint == 'social.feed' }}" href="{{ url_for('social.feed') }}"><span aria-hidden="true">&#8962;</span><small>Feed</small></a>
         <a class="{{ 'is-active' if request.endpoint == 'social.notifications' }}" href="{{ url_for('social.notifications') }}">
             <span class="mobile-nav-icon" aria-hidden="true">
-                &#128276;
+                <svg class="mobile-nav-bell" viewBox="0 0 24 24" focusable="false">
+                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+                    <path d="M10 21h4"></path>
+                </svg>
                 {% if current_user.unread_notification_count|default(0) %}<b>{{ current_user.unread_notification_count }}</b>{% endif %}
             </span>
             <small>Notifications</small>

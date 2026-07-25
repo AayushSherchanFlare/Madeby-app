@@ -634,7 +634,6 @@ textarea.form-control { resize: vertical; }
   }
   .dashboard-mobile-header .brand { width: 125px; height: 30px; }
   .dashboard-mobile-actions { display: flex; align-items: center; gap: 8px; }
-  .mobile-add { padding: 8px 13px; color: #fff; background: #171717; border-radius: 999px; font-size: 12px; font-weight: 800; }
   .dashboard-settings-link {
     width: 40px;
     height: 40px;
@@ -676,6 +675,16 @@ textarea.form-control { resize: vertical; }
   .dashboard-mobile-nav a small { font-size: 9px; font-weight: 800; }
   .dashboard-mobile-nav a.is-active { color: var(--accent-readable); }
   .mobile-nav-icon { position: relative; line-height: 1; }
+  .mobile-nav-bell {
+    width: 18px;
+    height: 18px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
   .mobile-nav-icon b {
     position: absolute;
     top: -7px;
