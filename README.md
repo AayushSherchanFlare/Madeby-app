@@ -23,6 +23,7 @@ This repository currently contains **Phase 3: Social feed and profiles**. It kee
 - Account registration with server-side validation and duplicate protection
 - Six-digit email verification with expiration, attempt limits, and resend cooldown
 - Google OpenID Connect login with verified-email account linking
+- Six-digit email password recovery with expiration, attempt limits, and resend cooldown
 - Password hashing using Werkzeug's secure password utilities
 - Login, logout, persistent-session option, and protected account page
 - Safe post-login redirects and account-status enforcement
@@ -118,6 +119,7 @@ SOURCE E:/My App/database/migrations/004_add_saved_posts.sql;
 SOURCE E:/My App/database/migrations/005_verified_auth.sql;
 SOURCE E:/My App/database/migrations/006_admin_dashboard.sql;
 SOURCE E:/My App/database/migrations/007_godhood_role.sql;
+SOURCE E:/My App/database/migrations/008_password_reset.sql;
 ```
 
 The application database user should not be granted the elevated global
@@ -168,7 +170,7 @@ Visit `http://127.0.0.1:5000/`. The landing page does not query MySQL, so it can
 - [ ] `/` returns the responsive MadeBy landing page.
 - [ ] The mobile menu opens at a narrow browser width and can be used by keyboard.
 - [ ] A missing URL such as `/does-not-exist` displays the custom 404 page.
-- [ ] `SHOW TABLES;` in MySQL lists all thirteen tables.
+- [ ] `SHOW TABLES;` in MySQL lists all fourteen tables.
 - [ ] `SELECT * FROM categories;` returns the nine seeded creative categories.
 - [ ] A new account can receive a verification code, verify, and log in.
 - [ ] “Continue with Google” creates or safely links a verified account.
@@ -213,8 +215,8 @@ The automated tests use isolated fakes and do not require a running MySQL server
 
 ## Known limitations
 
-Featured landing-page content is presentation data. Messaging and account recovery are not yet implemented.
+Featured landing-page content is presentation data. Direct messaging is not yet implemented.
 
 ## Planned improvements
 
-The next phase can add messaging and account recovery. Longer-term possibilities include cloud storage, advanced analytics, and additional OAuth providers.
+The next phase can add direct messaging. Longer-term possibilities include cloud storage, advanced analytics, and additional OAuth providers.

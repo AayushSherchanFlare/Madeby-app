@@ -580,6 +580,7 @@ def update_profile(
             """,
             (full_name, profession, biography, website_url, profile_image, user_id),
         )
+        return cursor.rowcount == 1
 
 
 def password_hash_for_user(user_id):

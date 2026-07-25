@@ -1,6 +1,5 @@
 from flask import (
     abort,
-    current_app,
     flash,
     g,
     jsonify,
@@ -23,8 +22,8 @@ from app.services.socialService import (
     change_password,
     delete_existing_post,
     publish_post,
-    save_image,
     update_existing_post,
+    update_user_profile,
 )
 
 
@@ -363,25 +362,21 @@ def update_profile():
     if not form.validate_on_submit():
         return _render_settings(current_user, profile_form=form)
 
-    image_filename = None
-    if form.profile_image.data:
-        try:
-            image_filename = save_image(
-                form.profile_image.data,
-                current_app.config["PROFILE_UPLOAD_FOLDER"],
-            )
-        except InvalidImage as error:
-            form.profile_image.errors.append(str(error))
-            return _render_settings(current_user, profile_form=form)
-
-    socialRepository.update_profile(
-        current_user["user_id"],
-        form.full_name.data,
-        form.profession.data,
-        form.biography.data,
-        form.website_url.data,
-        image_filename,
-    )
+    try:
+        updated = update_user_profile(
+            current_user["user_id"],
+            current_user["profile_image"],
+            form.full_name.data,
+            form.profession.data,
+            form.biography.data,
+            form.website_url.data,
+            form.profile_image.data,
+        )
+    except InvalidImage as error:
+        form.profile_image.errors.append(str(error))
+        return _render_settings(current_user, profile_form=form)
+    if not updated:
+        abort(404)
     flash("Profile updated.", "success")
     return redirect(url_for("social.settings"))
 

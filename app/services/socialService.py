@@ -25,6 +25,11 @@ class InvalidImage(ValueError):
     pass
 
 
+def _remove_image(folder, filename):
+    if filename:
+        (Path(folder) / filename).unlink(missing_ok=True)
+
+
 def _center_crop(image, ratio):
     ratio_width, ratio_height = POST_IMAGE_RATIOS[ratio]
     scale = min(image.width // ratio_width, image.height // ratio_height)
@@ -89,10 +94,7 @@ def publish_post(user_id, content, image, category_id, aspect_ratio="1:1"):
     try:
         return socialRepository.create_post(user_id, content, filename, category_id)
     except Exception:
-        if filename:
-            (Path(current_app.config["PROJECT_UPLOAD_FOLDER"]) / filename).unlink(
-                missing_ok=True
-            )
+        _remove_image(current_app.config["PROJECT_UPLOAD_FOLDER"], filename)
         raise
 
 
@@ -120,25 +122,64 @@ def update_existing_post(
             category_id,
         )
     except Exception:
-        if filename:
-            (Path(current_app.config["PROJECT_UPLOAD_FOLDER"]) / filename).unlink(
-                missing_ok=True
-            )
+        _remove_image(current_app.config["PROJECT_UPLOAD_FOLDER"], filename)
         raise
-    if updated and filename and post["cover_image"]:
-        (Path(current_app.config["PROJECT_UPLOAD_FOLDER"]) / post["cover_image"]).unlink(
-            missing_ok=True
+    if not updated:
+        _remove_image(current_app.config["PROJECT_UPLOAD_FOLDER"], filename)
+    elif filename:
+        _remove_image(
+            current_app.config["PROJECT_UPLOAD_FOLDER"],
+            post["cover_image"],
         )
     return updated
 
 
 def delete_existing_post(user_id, post):
     deleted = socialRepository.delete_post(post["project_id"], user_id)
-    if deleted and post["cover_image"]:
-        (Path(current_app.config["PROJECT_UPLOAD_FOLDER"]) / post["cover_image"]).unlink(
-            missing_ok=True
+    if deleted:
+        _remove_image(
+            current_app.config["PROJECT_UPLOAD_FOLDER"],
+            post["cover_image"],
         )
     return deleted
+
+
+def update_user_profile(
+    user_id,
+    current_profile_image,
+    full_name,
+    profession,
+    biography,
+    website_url,
+    image,
+):
+    filename = None
+    if image:
+        filename = save_image(
+            image,
+            current_app.config["PROFILE_UPLOAD_FOLDER"],
+        )
+    try:
+        updated = socialRepository.update_profile(
+            user_id,
+            full_name,
+            profession,
+            biography,
+            website_url,
+            filename,
+        )
+    except Exception:
+        _remove_image(current_app.config["PROFILE_UPLOAD_FOLDER"], filename)
+        raise
+    if not updated:
+        _remove_image(current_app.config["PROFILE_UPLOAD_FOLDER"], filename)
+        return filename is None
+    if filename:
+        _remove_image(
+            current_app.config["PROFILE_UPLOAD_FOLDER"],
+            current_profile_image,
+        )
+    return True
 
 
 def change_password(user_id, current_password, new_password):
