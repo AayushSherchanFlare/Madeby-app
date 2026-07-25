@@ -48,6 +48,12 @@
 .auth-divider span { white-space: nowrap; }
 .form-field { margin-bottom: 20px; }
 .form-field label:not(.check-label) { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 700; }
+.password-label-row {
+  margin-bottom: 7px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.password-label-row label { margin: 0 !important; }
+.password-label-row a { color: var(--accent-readable); font-size: 12px; font-weight: 800; }
+.password-label-row a:hover { text-decoration: underline; }
 .form-control {
   width: 100%; min-height: 52px; padding: 12px 14px; color: var(--ink);
   background: var(--paper); border: 1px solid var(--line); border-radius: 0;

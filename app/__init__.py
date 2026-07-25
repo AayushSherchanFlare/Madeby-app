@@ -55,6 +55,13 @@ def create_app(config_class=Config):
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
         if request.endpoint and request.endpoint.startswith(("social.", "godhood.")):
             response.headers["Cache-Control"] = "no-store"
+        if request.endpoint in {
+            "auth.forgot_password",
+            "auth.reset_password",
+            "auth.resend_reset_code",
+        }:
+            response.headers["Cache-Control"] = "no-store"
+            response.headers["Referrer-Policy"] = "no-referrer"
         return response
 
     @app.context_processor

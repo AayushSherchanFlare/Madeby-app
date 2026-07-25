@@ -9,7 +9,11 @@ from mysql.connector import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.repository import userRepository
-from app.services.emailService import EmailDeliveryError, send_verification_code
+from app.services.emailService import (
+    EmailDeliveryError,
+    send_password_reset_code,
+    send_verification_code,
+)
 
 
 class RegistrationConflict(Exception):
@@ -39,6 +43,18 @@ class GoogleAuthenticationError(ValueError):
     pass
 
 
+class PasswordResetError(ValueError):
+    pass
+
+
+class PasswordResetExpired(PasswordResetError):
+    pass
+
+
+class PasswordResetLocked(PasswordResetError):
+    pass
+
+
 _DUMMY_PASSWORD_HASH = generate_password_hash("madeby-invalid-password")
 
 
@@ -52,6 +68,12 @@ def _new_code():
 
 def _code_hash(email, code):
     payload = f"{email.lower()}:{code}".encode()
+    secret = current_app.config["SECRET_KEY"].encode()
+    return hmac.new(secret, payload, hashlib.sha256).hexdigest()
+
+
+def _password_reset_code_hash(email, code):
+    payload = f"password-reset:{email.lower()}:{code}".encode()
     secret = current_app.config["SECRET_KEY"].encode()
     return hmac.new(secret, payload, hashlib.sha256).hexdigest()
 
@@ -138,6 +160,85 @@ def resend_verification_code(email):
         now + timedelta(minutes=10),
         now + timedelta(seconds=60),
     )
+
+
+def start_password_reset(email):
+    user = userRepository.find_by_email(email)
+    if not user or user["account_status"] != "active":
+        return False
+
+    now = _now()
+    pending = userRepository.find_password_reset_by_email(email)
+    if pending and pending["resend_available_at"] > now:
+        return False
+
+    code = _new_code()
+    userRepository.save_password_reset(
+        user_id=user["user_id"],
+        code_hash=_password_reset_code_hash(email, code),
+        expires_at=now + timedelta(minutes=10),
+        resend_available_at=now + timedelta(seconds=60),
+    )
+    try:
+        send_password_reset_code(email, code)
+    except EmailDeliveryError:
+        userRepository.delete_password_reset(user["user_id"])
+        return False
+    return True
+
+
+def resend_password_reset_code(email):
+    user = userRepository.find_by_email(email)
+    if not user or user["account_status"] != "active":
+        return False
+
+    pending = userRepository.find_password_reset_by_email(email)
+    now = _now()
+    if not pending or pending["resend_available_at"] > now:
+        return False
+
+    code = _new_code()
+    updated = userRepository.update_password_reset_code(
+        user_id=user["user_id"],
+        code_hash=_password_reset_code_hash(email, code),
+        expires_at=now + timedelta(minutes=10),
+        resend_available_at=now + timedelta(seconds=60),
+    )
+    if not updated:
+        return False
+    try:
+        send_password_reset_code(email, code)
+    except EmailDeliveryError:
+        userRepository.delete_password_reset(user["user_id"])
+        return False
+    return True
+
+
+def reset_password_with_code(email, code, new_password):
+    pending = userRepository.find_password_reset_by_email(email)
+    if not pending:
+        raise PasswordResetExpired("The reset code is invalid or has expired.")
+    if pending["attempts"] >= 5:
+        raise PasswordResetLocked(
+            "Too many incorrect attempts. Request a new reset code."
+        )
+    if pending["expires_at"] < _now():
+        userRepository.delete_password_reset(pending["user_id"])
+        raise PasswordResetExpired("The reset code is invalid or has expired.")
+
+    submitted_hash = _password_reset_code_hash(email, code)
+    if not hmac.compare_digest(pending["code_hash"], submitted_hash):
+        userRepository.record_password_reset_attempt(pending["user_id"])
+        raise PasswordResetError("The reset code is invalid or has expired.")
+
+    completed = userRepository.complete_password_reset(
+        email,
+        submitted_hash,
+        generate_password_hash(new_password),
+    )
+    if not completed:
+        raise PasswordResetExpired("The reset code is invalid or has expired.")
+    return True
 
 
 def login_or_create_google_user(userinfo):

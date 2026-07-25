@@ -72,6 +72,48 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Log in")
 
 
+class ForgotPasswordForm(FlaskForm):
+    email = StringField(
+        "Email address",
+        validators=[
+            DataRequired(),
+            Length(max=254),
+            Regexp(
+                r"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+                message="Enter a valid email address.",
+            ),
+        ],
+        filters=[_strip_lower],
+    )
+    submit = SubmitField("Send reset code")
+
+
+class ResetPasswordForm(FlaskForm):
+    code = StringField(
+        "Reset code",
+        validators=[
+            DataRequired(),
+            Regexp(r"^\d{6}$", message="Enter the six-digit code."),
+        ],
+        filters=[_strip],
+    )
+    password = PasswordField(
+        "New password",
+        validators=[
+            DataRequired(),
+            Length(min=8, max=128, message="Use between 8 and 128 characters."),
+        ],
+    )
+    confirm_password = PasswordField(
+        "Confirm new password",
+        validators=[
+            DataRequired(),
+            EqualTo("password", message="Passwords must match."),
+        ],
+    )
+    submit = SubmitField("Reset password")
+
+
 class VerifyEmailForm(FlaskForm):
     code = StringField(
         "Verification code",
@@ -86,3 +128,7 @@ class VerifyEmailForm(FlaskForm):
 
 class ResendCodeForm(FlaskForm):
     submit = SubmitField("Send a new code")
+
+
+class ResendPasswordResetForm(FlaskForm):
+    submit = SubmitField("Send a new reset code")

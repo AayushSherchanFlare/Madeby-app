@@ -16,13 +16,17 @@ from requests import RequestException
 
 from app import oauth
 from app.forms.authForms import (
+    ForgotPasswordForm,
     LoginForm,
     RegisterForm,
     ResendCodeForm,
+    ResendPasswordResetForm,
+    ResetPasswordForm,
     VerifyEmailForm,
 )
 from app.services.authService import (
     GoogleAuthenticationError,
+    PasswordResetError,
     ResendTooSoon,
     RegistrationConflict,
     VerificationError,
@@ -30,7 +34,10 @@ from app.services.authService import (
     VerificationLocked,
     authenticate_user,
     login_or_create_google_user,
+    resend_password_reset_code,
     resend_verification_code,
+    reset_password_with_code,
+    start_password_reset,
     start_email_registration,
     verify_email_registration,
 )
@@ -102,6 +109,65 @@ def login_page():
         form.email.errors.append("Email or password is incorrect.")
 
     return render_template("auth/login.html", form=form)
+
+
+def forgot_password_page():
+    if session.get("user_id"):
+        return redirect(url_for("social.feed"))
+
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        start_password_reset(email)
+        session.clear()
+        session["pending_password_reset_email"] = email
+        flash(
+            "If a MadeBy account uses that email, a six-digit reset code was sent.",
+            "success",
+        )
+        return redirect(url_for("auth.reset_password"))
+    return render_template("auth/forgot_password.html", form=form)
+
+
+def reset_password_page():
+    if session.get("user_id"):
+        return redirect(url_for("social.feed"))
+    email = session.get("pending_password_reset_email")
+    if not email:
+        flash("Enter your email to request a password reset code.", "info")
+        return redirect(url_for("auth.forgot_password"))
+
+    form = ResetPasswordForm()
+    resend_form = ResendPasswordResetForm()
+    if form.validate_on_submit():
+        try:
+            reset_password_with_code(email, form.code.data, form.password.data)
+        except PasswordResetError as error:
+            form.code.errors.append(str(error))
+        else:
+            session.pop("pending_password_reset_email", None)
+            flash("Your password was reset. Log in with your new password.", "success")
+            return redirect(url_for("auth.login"))
+    return render_template(
+        "auth/reset_password.html",
+        form=form,
+        resend_form=resend_form,
+        masked_email=_mask_email(email),
+    )
+
+
+def resend_password_reset():
+    email = session.get("pending_password_reset_email")
+    if not email:
+        return redirect(url_for("auth.forgot_password"))
+    form = ResendPasswordResetForm()
+    if form.validate_on_submit():
+        resend_password_reset_code(email)
+        flash(
+            "If the account is eligible, a new six-digit reset code was sent.",
+            "success",
+        )
+    return redirect(url_for("auth.reset_password"))
 
 
 def verify_email_page():

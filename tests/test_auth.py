@@ -1,7 +1,8 @@
 import re
+from datetime import UTC, datetime, timedelta
 
 import pytest
-from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 def test_registration_page_renders(client):
@@ -174,6 +175,100 @@ def test_login_rejects_invalid_credentials(client, monkeypatch):
 
     assert response.status_code == 200
     assert b"Email or password is incorrect." in response.data
+
+
+def test_login_links_to_forgot_password(client):
+    response = client.get("/login")
+
+    assert response.status_code == 200
+    assert b' href="/forgot-password"' in response.data
+    assert b"Forgot password?" in response.data
+
+
+def test_forgot_password_uses_generic_response(client, monkeypatch):
+    requested = []
+    monkeypatch.setattr(
+        "app.controllers.authController.start_password_reset",
+        lambda email: requested.append(email) or False,
+    )
+
+    response = client.post(
+        "/forgot-password",
+        data={"email": "UNKNOWN@EXAMPLE.COM"},
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/reset-password")
+    assert requested == ["unknown@example.com"]
+    page = client.get("/reset-password")
+    assert b"If a MadeBy account uses that email" in page.data
+    assert b"un*****@example.com" in page.data
+    assert page.headers["Cache-Control"] == "no-store"
+    assert page.headers["Referrer-Policy"] == "no-referrer"
+
+
+def test_reset_password_requires_requested_email(client):
+    response = client.get("/reset-password")
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/forgot-password")
+
+
+def test_reset_password_accepts_code_and_returns_to_login(client, monkeypatch):
+    completed = {}
+    monkeypatch.setattr(
+        "app.controllers.authController.reset_password_with_code",
+        lambda email, code, password: completed.update(
+            email=email, code=code, password=password
+        ),
+    )
+    with client.session_transaction() as session:
+        session["pending_password_reset_email"] = "maya@example.com"
+
+    response = client.post(
+        "/reset-password",
+        data={
+            "code": "123456",
+            "password": "new-correct-horse",
+            "confirm_password": "new-correct-horse",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/login")
+    assert completed == {
+        "email": "maya@example.com",
+        "code": "123456",
+        "password": "new-correct-horse",
+    }
+    with client.session_transaction() as session:
+        assert "pending_password_reset_email" not in session
+
+
+def test_reset_password_rejects_bad_code(client, monkeypatch):
+    from app.services.authService import PasswordResetError
+
+    def reject(*_args):
+        raise PasswordResetError("The reset code is invalid or has expired.")
+
+    monkeypatch.setattr(
+        "app.controllers.authController.reset_password_with_code",
+        reject,
+    )
+    with client.session_transaction() as session:
+        session["pending_password_reset_email"] = "maya@example.com"
+
+    response = client.post(
+        "/reset-password",
+        data={
+            "code": "123456",
+            "password": "new-correct-horse",
+            "confirm_password": "new-correct-horse",
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"The reset code is invalid or has expired." in response.data
 
 
 def test_login_starts_session(client, monkeypatch):
@@ -367,6 +462,112 @@ def test_pending_registration_hashes_password_and_email_code(app, monkeypatch):
     assert captured["password_hash"].startswith(("scrypt:", "pbkdf2:"))
     assert re.fullmatch(r"\d{6}", delivered["code"])
     assert captured["code_hash"] != delivered["code"]
+
+
+def test_password_reset_stores_hashed_six_digit_code(app, monkeypatch):
+    captured = {}
+    delivered = {}
+    monkeypatch.setattr(
+        "app.services.authService.userRepository.find_by_email",
+        lambda _email: {"user_id": 9, "account_status": "active"},
+    )
+    monkeypatch.setattr(
+        "app.services.authService.userRepository.find_password_reset_by_email",
+        lambda _email: None,
+    )
+    monkeypatch.setattr(
+        "app.services.authService.userRepository.save_password_reset",
+        lambda **details: captured.update(details),
+    )
+    monkeypatch.setattr(
+        "app.services.authService.send_password_reset_code",
+        lambda email, code: delivered.update(email=email, code=code),
+    )
+
+    from app.services.authService import start_password_reset
+
+    with app.app_context():
+        assert start_password_reset("maya@example.com") is True
+
+    assert delivered["email"] == "maya@example.com"
+    assert re.fullmatch(r"\d{6}", delivered["code"])
+    assert captured["user_id"] == 9
+    assert captured["code_hash"] != delivered["code"]
+    assert len(captured["code_hash"]) == 64
+
+
+def test_password_reset_code_is_single_use_and_hashes_new_password(
+    app, monkeypatch
+):
+    completed = {}
+    email = "maya@example.com"
+    code = "123456"
+
+    from app.services.authService import (
+        _password_reset_code_hash,
+        reset_password_with_code,
+    )
+
+    with app.app_context():
+        code_hash = _password_reset_code_hash(email, code)
+
+    monkeypatch.setattr(
+        "app.services.authService.userRepository.find_password_reset_by_email",
+        lambda _email: {
+            "user_id": 9,
+            "code_hash": code_hash,
+            "expires_at": datetime.now(UTC).replace(tzinfo=None)
+            + timedelta(minutes=5),
+            "attempts": 0,
+        },
+    )
+
+    def complete(reset_email, expected_hash, password_hash):
+        completed.update(
+            email=reset_email,
+            code_hash=expected_hash,
+            password_hash=password_hash,
+        )
+        return True
+
+    monkeypatch.setattr(
+        "app.services.authService.userRepository.complete_password_reset",
+        complete,
+    )
+
+    with app.app_context():
+        assert reset_password_with_code(email, code, "new-correct-horse") is True
+
+    assert completed["email"] == email
+    assert completed["code_hash"] == code_hash
+    assert check_password_hash(completed["password_hash"], "new-correct-horse")
+
+
+def test_bad_password_reset_code_records_attempt(app, monkeypatch):
+    attempts = []
+    monkeypatch.setattr(
+        "app.services.authService.userRepository.find_password_reset_by_email",
+        lambda _email: {
+            "user_id": 9,
+            "code_hash": "0" * 64,
+            "expires_at": datetime.now(UTC).replace(tzinfo=None)
+            + timedelta(minutes=5),
+            "attempts": 0,
+        },
+    )
+    monkeypatch.setattr(
+        "app.services.authService.userRepository.record_password_reset_attempt",
+        lambda user_id: attempts.append(user_id),
+    )
+
+    from app.services.authService import PasswordResetError, reset_password_with_code
+
+    with app.app_context(), pytest.raises(PasswordResetError):
+        reset_password_with_code(
+            "maya@example.com", "123456", "new-correct-horse"
+        )
+
+    assert attempts == [9]
 
 
 @pytest.mark.parametrize(

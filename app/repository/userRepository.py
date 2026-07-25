@@ -187,6 +187,105 @@ def delete_pending_registration(email):
         )
 
 
+def find_password_reset_by_email(email):
+    with database_cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT pr.reset_id, pr.user_id, pr.code_hash, pr.expires_at,
+                   pr.attempts, pr.resend_available_at
+            FROM password_reset_requests pr
+            JOIN users u ON u.user_id = pr.user_id
+            WHERE u.email = %s
+            LIMIT 1
+            """,
+            (email,),
+        )
+        return cursor.fetchone()
+
+
+def save_password_reset(user_id, code_hash, expires_at, resend_available_at):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            "DELETE FROM password_reset_requests WHERE expires_at < UTC_TIMESTAMP()"
+        )
+        cursor.execute(
+            """
+            INSERT INTO password_reset_requests (
+                user_id, code_hash, expires_at, resend_available_at
+            )
+            VALUES (%s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                code_hash = VALUES(code_hash),
+                expires_at = VALUES(expires_at),
+                attempts = 0,
+                resend_available_at = VALUES(resend_available_at)
+            """,
+            (user_id, code_hash, expires_at, resend_available_at),
+        )
+
+
+def update_password_reset_code(
+    user_id, code_hash, expires_at, resend_available_at
+):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            """
+            UPDATE password_reset_requests
+            SET code_hash = %s, expires_at = %s, attempts = 0,
+                resend_available_at = %s
+            WHERE user_id = %s
+            """,
+            (code_hash, expires_at, resend_available_at, user_id),
+        )
+        return cursor.rowcount == 1
+
+
+def record_password_reset_attempt(user_id):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            """
+            UPDATE password_reset_requests
+            SET attempts = LEAST(attempts + 1, 255)
+            WHERE user_id = %s
+            """,
+            (user_id,),
+        )
+
+
+def delete_password_reset(user_id):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            "DELETE FROM password_reset_requests WHERE user_id = %s",
+            (user_id,),
+        )
+
+
+def complete_password_reset(email, expected_code_hash, password_hash):
+    with database_cursor(commit=True) as cursor:
+        cursor.execute(
+            """
+            SELECT pr.user_id, pr.code_hash
+            FROM password_reset_requests pr
+            JOIN users u ON u.user_id = pr.user_id
+            WHERE u.email = %s
+            FOR UPDATE
+            """,
+            (email,),
+        )
+        pending = cursor.fetchone()
+        if not pending or pending["code_hash"] != expected_code_hash:
+            return False
+        cursor.execute(
+            "UPDATE users SET password_hash = %s WHERE user_id = %s",
+            (password_hash, pending["user_id"]),
+        )
+        cursor.execute(
+            "DELETE FROM password_reset_requests WHERE user_id = %s",
+            (pending["user_id"],),
+        )
+        return True
+
+
 def find_by_google_subject(subject):
     with database_cursor() as cursor:
         cursor.execute(

@@ -2,12 +2,15 @@ from flask import Blueprint
 
 from app.controllers.authController import (
     account_page,
+    forgot_password_page,
     google_callback,
     google_login,
     login_page,
     logout_user,
+    resend_password_reset,
     resend_code,
     register_page,
+    reset_password_page,
     verify_email_page,
 )
 from app.decorators import login_required
@@ -24,6 +27,21 @@ def register():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     return login_page()
+
+
+@auth_bp.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    return forgot_password_page()
+
+
+@auth_bp.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    return reset_password_page()
+
+
+@auth_bp.post("/reset-password/resend")
+def resend_reset_code():
+    return resend_password_reset()
 
 
 @auth_bp.route("/verify-email", methods=["GET", "POST"])

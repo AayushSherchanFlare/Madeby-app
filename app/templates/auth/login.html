@@ -30,7 +30,10 @@
                     {% for error in form.email.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
                 </div>
                 <div class="form-field">
-                    {{ form.password.label }}
+                    <div class="password-label-row">
+                        {{ form.password.label }}
+                        <a href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
+                    </div>
                     {{ form.password(class="form-control", autocomplete="current-password", aria_invalid="true" if form.password.errors else "false") }}
                     {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
                 </div>

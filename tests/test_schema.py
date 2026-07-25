@@ -8,7 +8,7 @@ DATABASE_DIR = Path(__file__).resolve().parents[1] / "database"
 def test_schema_declares_expected_tables_and_triggers():
     schema = (DATABASE_DIR / "schema.sql").read_text(encoding="utf-8")
 
-    assert len(re.findall(r"^CREATE TABLE ", schema, flags=re.MULTILINE)) == 13
+    assert len(re.findall(r"^CREATE TABLE ", schema, flags=re.MULTILINE)) == 14
     assert len(re.findall(r"^CREATE TRIGGER ", schema, flags=re.MULTILINE)) == 4
     assert "following_user_id" not in schema
 
@@ -93,3 +93,14 @@ def test_godhood_role_migration_converts_existing_admins_safely():
     assert "SET role = 'god'" in migration
     assert "WHERE role = 'admin'" in migration
     assert "ENUM('user', 'god')" in migration
+
+
+def test_password_reset_migration_is_restart_safe():
+    migration = (
+        DATABASE_DIR / "migrations" / "008_password_reset.sql"
+    ).read_text(encoding="utf-8")
+
+    assert "CREATE TABLE IF NOT EXISTS password_reset_requests" in migration
+    assert "UNIQUE KEY uq_password_reset_user" in migration
+    assert "CONSTRAINT fk_password_reset_user" in migration
+    assert "ON DELETE CASCADE" in migration
