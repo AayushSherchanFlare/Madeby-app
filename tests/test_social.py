@@ -142,6 +142,8 @@ def test_suggestions_show_follow_back_and_unfollow_without_disappearing(
     assert b"Unfollow" in response.data
     assert b"New Follower" in response.data
     assert b"Follow back" in response.data
+    assert b'data-target-user-id="8"' in response.data
+    assert b'data-follows-viewer="true"' in response.data
 
 
 def test_follow_action_returns_to_current_page(client, monkeypatch):
@@ -161,6 +163,27 @@ def test_follow_action_returns_to_current_page(client, monkeypatch):
     assert response.status_code == 302
     assert response.headers["Location"].endswith("/users/maya/followers")
     assert toggled == [(7, 8)]
+
+
+def test_follow_ajax_updates_without_redirect(client, monkeypatch):
+    install_user(monkeypatch)
+    log_in(client)
+    monkeypatch.setattr(
+        "app.controllers.socialController.socialRepository.toggle_follow",
+        lambda user_id, target_id: (user_id, target_id) == (7, 8),
+    )
+
+    response = client.post(
+        "/users/8/follow",
+        headers={"X-Requested-With": "XMLHttpRequest", "Accept": "application/json"},
+    )
+
+    assert response.status_code == 200
+    assert response.is_json
+    assert response.get_json() == {
+        "following": True,
+        "target_user_id": 8,
+    }
 
 
 def test_like_ajax_updates_without_redirect(client, monkeypatch):

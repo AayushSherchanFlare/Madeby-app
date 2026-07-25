@@ -360,6 +360,7 @@ html[data-theme="dark"] .settings-card {
   cursor: pointer;
 }
 .follow-action:hover { opacity: .82; }
+.follow-action:disabled { cursor: wait; opacity: .6; }
 .follow-action.is-following {
   color: var(--ink);
   background: transparent;

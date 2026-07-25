@@ -266,6 +266,13 @@ def follow_user(target_user_id):
     if not target or target["account_status"] != "active":
         abort(404)
     following = socialRepository.toggle_follow(session["user_id"], target_user_id)
+    if _wants_json():
+        return jsonify(
+            {
+                "following": following,
+                "target_user_id": target_user_id,
+            }
+        )
     flash(
         f"You are now following {target['full_name']}."
         if following

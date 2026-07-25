@@ -1,5 +1,9 @@
 {% if person.user_id != current_user.user_id %}
-<form class="follow-form" action="{{ url_for('social.follow', target_user_id=person.user_id) }}" method="post">
+<form class="follow-form"
+      action="{{ url_for('social.follow', target_user_id=person.user_id) }}"
+      method="post"
+      data-target-user-id="{{ person.user_id }}"
+      data-follows-viewer="{{ 'true' if person.follows_viewer|default(false) else 'false' }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}">
     <button class="follow-action {{ 'is-following' if person.followed_by_viewer|default(false) }}" type="submit">
@@ -7,5 +11,6 @@
         {% elif person.follows_viewer|default(false) %}Follow back
         {% else %}Follow{% endif %}
     </button>
+    <span class="follow-status sr-only" aria-live="polite"></span>
 </form>
 {% endif %}

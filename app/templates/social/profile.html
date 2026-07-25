@@ -24,7 +24,7 @@
         {% if profile.biography %}<p class="profile-bio">{{ profile.biography }}</p>{% endif %}
         <div class="profile-counts">
             <span><strong>{{ profile.post_count }}</strong> posts</span>
-            <a href="{{ url_for('social.followers', username=profile.username) }}"><strong>{{ profile.follower_count }}</strong> followers</a>
+            <a href="{{ url_for('social.followers', username=profile.username) }}"><strong data-follower-count-for="{{ profile.user_id }}">{{ profile.follower_count }}</strong> followers</a>
             <a href="{{ url_for('social.following', username=profile.username) }}"><strong>{{ profile.following_count }}</strong> following</a>
         </div>
     </div>

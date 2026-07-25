@@ -181,6 +181,69 @@ async function submitPostAction(form) {
   return data;
 }
 
+document.querySelectorAll(".follow-form").forEach((form) => {
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = form.querySelector(".follow-action");
+    const status = form.querySelector(".follow-status");
+    if (!button || button.disabled) return;
+
+    const wasFollowing = button.classList.contains("is-following");
+    document
+      .querySelectorAll(
+        `.follow-form[data-target-user-id="${form.dataset.targetUserId}"] .follow-action`
+      )
+      .forEach((matchingButton) => {
+        matchingButton.disabled = true;
+      });
+    if (status) status.textContent = "";
+
+    try {
+      const data = await submitPostAction(form);
+      const targetUserId = String(data.target_user_id);
+      document
+        .querySelectorAll(`.follow-form[data-target-user-id="${targetUserId}"]`)
+        .forEach((matchingForm) => {
+          const matchingButton = matchingForm.querySelector(".follow-action");
+          const matchingStatus = matchingForm.querySelector(".follow-status");
+          if (!matchingButton) return;
+          const followsViewer = matchingForm.dataset.followsViewer === "true";
+          matchingButton.classList.toggle("is-following", data.following);
+          matchingButton.textContent = data.following
+            ? "Unfollow"
+            : followsViewer
+              ? "Follow back"
+              : "Follow";
+          if (matchingStatus) {
+            matchingStatus.textContent = data.following
+              ? "Now following this person."
+              : "No longer following this person.";
+          }
+        });
+
+      const followerCount = document.querySelector(
+        `[data-follower-count-for="${targetUserId}"]`
+      );
+      if (followerCount && wasFollowing !== data.following) {
+        const currentCount = Number.parseInt(followerCount.textContent, 10) || 0;
+        followerCount.textContent = String(
+          Math.max(0, currentCount + (data.following ? 1 : -1))
+        );
+      }
+    } catch (error) {
+      if (status) status.textContent = error.message;
+    } finally {
+      document
+        .querySelectorAll(
+          `.follow-form[data-target-user-id="${form.dataset.targetUserId}"] .follow-action`
+        )
+        .forEach((matchingButton) => {
+          matchingButton.disabled = false;
+        });
+    }
+  });
+});
+
 document.querySelectorAll(".like-form").forEach((form) => {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
