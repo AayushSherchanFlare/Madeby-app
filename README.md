@@ -6,6 +6,8 @@ MadeBy is an individual university web application project for creative professi
 
 This repository currently contains **Phase 3: Social feed and profiles**. It keeps the original public landing page while giving signed-in members a separate social workspace.
 
+YouTube Link : https://youtu.be/zD9IStToRmI
+
 ## Current features
 
 - Flask application factory and public `main` Blueprint
